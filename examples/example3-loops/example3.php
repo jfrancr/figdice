@@ -32,12 +32,12 @@
 
 
 // Autoload the Figdice lib
-require_once '../../vendor/autoload.php';
+require_once dirname(__FILE__).'/../../vendor/autoload.php';
 
 use \figdice\View;
 
 $view = new View();
-$view->loadFile('template.xml');
+$view->loadFile(dirname(__FILE__).'/template.xml');
 
 // Mount an plain, one-dimension indexed array into 'indexed' key.
 // Each item is an object (or an assoc. array) with 

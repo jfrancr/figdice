@@ -31,12 +31,12 @@
 
 
 // Autoload the Figdice lib
-require_once '../../vendor/autoload.php';
+require_once dirname(__FILE__).'/../../vendor/autoload.php';
 
 use \figdice\View;
 
 $view = new View();
-$view->loadFile('template.xml');
+$view->loadFile(dirname(__FILE__).'/template.xml');
 
 // In this exercise, we are not going to mount any data
 // directly into the View's universe. Rather, we will make

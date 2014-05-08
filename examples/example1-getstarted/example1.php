@@ -36,14 +36,14 @@
 
 
 // Autoload the Figdice lib
-require_once '../../vendor/autoload.php';
+require_once dirname(__FILE__).'/../../vendor/autoload.php';
 
 // Create a Fig View object
 $view = new \figdice\View();
 
 // Load its main template file:
 try {
-	$view->loadFile('template-main.xml');
+	$view->loadFile(dirname(__FILE__).'/template-main.xml');
 } catch (\figdice\exceptions\FileNotFoundException $ex) {
 	die('template file not found');
 }

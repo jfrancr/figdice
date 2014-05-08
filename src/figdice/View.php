@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.4
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -27,6 +27,7 @@ use figdice\classes\NativeFunctionFactory;
 use figdice\classes\TagFigAttr;
 use figdice\classes\File;
 use figdice\classes\ViewElementTag;
+use figdice\classes\Renderer;
 use figdice\exceptions\FileNotFoundException;
 use figdice\exceptions\XMLParsingException;
 
@@ -34,6 +35,8 @@ use Psr\Log\LoggerInterface;
 use figdice\exceptions\RenderingException;
 use figdice\classes\XMLEntityTransformer;
 use figdice\classes\Slot;
+use figdice\classes\Compiler;
+use figdice\classes\CompiledView;
 
 /**
  * Main component of the FigDice library.
@@ -222,6 +225,8 @@ class View {
 	 * @var string
 	 */
 	public $figNamespace = 'fig:';
+	
+	private $compiledView;
 
 	public function __construct() {
 		$this->source = '';
@@ -397,6 +402,17 @@ class View {
 					($this->file ? $this->file->getFilename() : '(null)'),
 					$lineNumber);
 		}
+		
+		
+		
+		
+		$compiler = new Compiler($this->figNamespace);
+		$compiler->compile($this->rootNode);
+		
+		
+		
+		
+		
 	}
 
 	/**
@@ -406,11 +422,38 @@ class View {
 	 * @return string
 	 * @throws RenderingException
 	 */
-	public function render() {
+	public function render()
+	{
+	  return $this->renderSubview();
+	}
+	
+	/**
+	 * Process parsed source and render view,
+	 * using the data universe.
+	 *
+	 * @return string
+	 * @throws RenderingException
+	 */
+	public function renderSubview(Renderer $parentRenderer = null)
+	{
+	  
+	  if (! $this->compiledView) {
+	    $this->compiledView = $this->compile();
+	  }
+	  
+	  if ($this->compiledView) {
+ 	    $renderer = new Renderer($this->figNamespace, $parentRenderer);
+	    $output = $renderer->render($this);
+	    return $output;
+	  }
+	  
+	  
+	  
+	  
+	  
 		if(! $this->bParsed) {
 			$this->parse();
 		}
-
 
 		if (null != $this->parentViewElement) {
 			$this->rootNode->view = & $this->parentViewElement->view;
@@ -519,12 +562,8 @@ class View {
 			$view = &$this;
 		}
 
-		if($tagName == $this->figNamespace . TagFigAttr::TAGNAME) {
-			$newElement = new TagFigAttr($view, $tagName, $lineNumber);
-		}
-		else {
-			$newElement = new ViewElementTag($view, $tagName, $lineNumber);
-		}
+		$newElement = new ViewElementTag($view, $tagName, $lineNumber);
+
 		$newElement->setCurrentFile($this->file);
 		$newElement->setAttributes($attributes);
 
@@ -780,5 +819,23 @@ class View {
 
   public function addPlug($slotName, ViewElementTag & $element) {
     $this->plugs[$slotName] [] = & $element;
+  }
+  
+  
+  public function compile()
+  {
+    $this->parse();
+    $compiler = new Compiler($this->figNamespace);
+    $this->compiledView = $compiler->compile($this->rootNode);
+    return $this->compiledView;
+  }
+  
+  public function getCompiled()
+  {
+    return $this->compiledView;
+  }
+  public function setCompiled(CompiledView $compiledView)
+  {
+    $this->compiledView = $compiledView;
   }
 }

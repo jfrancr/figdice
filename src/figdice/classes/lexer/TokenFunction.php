@@ -27,6 +27,8 @@ use \figdice\FunctionFactory;
 use \figdice\LoggerFactory;
 use \figdice\classes\ViewElement;
 use \figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 use \figdice\exceptions\FunctionNotFoundException;
 
 class TokenFunction extends TokenOperator {
@@ -91,6 +93,40 @@ class TokenFunction extends TokenOperator {
 		return $item['value'];
 	}
 
+	
+	public function evaluateNEW(Tag $tag, Renderer $renderer)
+	{
+	  if($this->function === null) {
+	    //Instanciate the Function handler:
+	    $factories = $renderer->getRootView()->getFunctionFactories();
+	    if ( (null != $factories) && (is_array($factories) ) ) {
+	      while(null != ($factory = $this->iterateFactory($factories)) ) {
+	        if(null !== ($this->function = $factory->create($this->name)))
+	          break;
+	      }
+	    }
+	  
+	    if($this->function == null) {
+	      $logger = LoggerFactory::getLogger(__CLASS__);
+	      $message = 'Undeclared function: ' . $this->name;
+	      $logger->error($message);
+	      throw new FunctionNotFoundException($this->name);
+	    }
+	  }
+	  
+	  $arguments = array();
+	  if($this->operands) {
+	    foreach($this->operands as $operandToken) {
+	      $arguments[] = $operandToken->evaluateNEW($tag, $renderer);
+	    }
+	  }
+	  
+	  //TODO: on va vouloir du Tag ici
+	  $viewElement = new ViewElementTag($renderer->getView(), $tag->getName(), $tag->getLineNumber());
+
+	  return $this->function->evaluate($viewElement, $this->arity, $arguments);
+	}
+	
 	/**
 	 * @param ViewElement $viewElement
 	 */

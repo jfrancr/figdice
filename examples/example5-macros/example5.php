@@ -30,7 +30,7 @@
 
 
 // Autoload the Figdice lib
-require_once '../../vendor/autoload.php';
+require_once dirname(__FILE__).'/../../vendor/autoload.php';
 
 use \figdice\View;
 
@@ -42,7 +42,7 @@ $view = new View();
 // However it does not "return" a value: rather, it produces
 // in-place output, at the location where it is invoked.
 
-$view->loadFile('template.xml');
+$view->loadFile(dirname(__FILE__).'/template.xml');
 
 // We have learned, in example 4, how to use Feeds as data providers
 // for our View. In this example we will get back to mounting direct

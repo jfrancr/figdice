@@ -23,45 +23,32 @@
 
 namespace figdice\classes;
 
-class TagFigAttr extends TagFig {
-	const TAGNAME = 'attr';
+use figdice\exceptions\RequiredAttributeException;
+
+class TagFigCData extends TagFig {
+	const TAGNAME = 'cdata';
 
 	public function __construct($xmlLineNumber) {
 		parent::__construct(null, $xmlLineNumber);
 	}
 	
-	public function getAttributeName()
+	public function validate()
 	{
-	  return $this->getAttribute('name');
+	  // "file" attribute is mandatory.
+	  if (! $this->hasAttribute('file')) {
+	    throw new Exception('TODO: MISSING ATTRIBUTE');
+	  }
 	}
-	
-	public function render(Renderer $renderer) 
-	{
-	  $result = '';
 
-	  if ($this->hasAttribute('value')) {
-	    $valueExpr = $this->getAttribute('value');
-	    $result = $renderer->evaluate($valueExpr, $this);
-	  }
-	  else {
-  	  $appender = array();
-  	  if (count($this->children)) {
-  	    foreach($this->children as $childNode) {
-  	      $childResult = $childNode->render($renderer);
-  	      if (is_array($childResult)) {
-  	        $childResult = implode($childResult);
-  	      }
-  	      $appender []= $childResult;
-  	    }
-  	    $result = implode($appender);
-  	  }
-	  }
+	public function render(Renderer $renderer)
+	{
+	  $currentFilename = $renderer->getView()->getFilename();
+	  $requestedFilename = $this->getAttribute('file');
 	  
+	  $dirname = dirname($currentFilename) | '.';
+	  $fqname = dirname($currentFilename).'/'.$requestedFilename;
+	  $fileContents = file_get_contents($fqname);
 	  
-	  //An XML attribute should not span accross several lines.
-	  $result = trim(preg_replace("#[\n\r\t]+#", ' ', $result));
-	  
-	  
-	  return $result;
+	  return $fileContents;
 	}
 }

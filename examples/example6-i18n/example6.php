@@ -31,7 +31,7 @@
 
 
 // Autoload the Figdice lib
-require_once '../../vendor/autoload.php';
+require_once dirname(__FILE__).'/../../vendor/autoload.php';
 
 use \figdice\View;
 
@@ -40,7 +40,7 @@ $view = new View();
 // The template we are loading now, imports a Dictionary.
 // Dictionaries are XML files containing entries of key/value pairs.
 
-$view->loadFile('template.xml');
+$view->loadFile(dirname(__FILE__).'/template.xml');
 
 // Let the View know where our Dictionaries are stored.
 // For the sake of the example, we keep our dictionaries locally, in 

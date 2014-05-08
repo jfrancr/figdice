@@ -23,45 +23,37 @@
 
 namespace figdice\classes;
 
-class TagFigAttr extends TagFig {
-	const TAGNAME = 'attr';
+use figdice\View;
+
+class TagFigInclude extends TagFig {
+	const TAGNAME = 'include';
 
 	public function __construct($xmlLineNumber) {
 		parent::__construct(null, $xmlLineNumber);
 	}
 	
-	public function getAttributeName()
+	public function validate()
 	{
-	  return $this->getAttribute('name');
+	  // "file" attribute is mandatory.
+	  if (! $this->hasAttribute('file')) {
+	    throw new Exception('TODO: MISSING ATTRIBUTE');
+	  }
 	}
 	
-	public function render(Renderer $renderer) 
+	public function render(Renderer $renderer)
 	{
-	  $result = '';
+	  $currentFilename = $renderer->getView()->getFilename();
+	  $requestedFilename = $this->getAttribute('file');
+	   
+	  $dirname = dirname($currentFilename) | '.';
+	  $fqname = dirname($currentFilename).'/'.$requestedFilename;
 
-	  if ($this->hasAttribute('value')) {
-	    $valueExpr = $this->getAttribute('value');
-	    $result = $renderer->evaluate($valueExpr, $this);
-	  }
-	  else {
-  	  $appender = array();
-  	  if (count($this->children)) {
-  	    foreach($this->children as $childNode) {
-  	      $childResult = $childNode->render($renderer);
-  	      if (is_array($childResult)) {
-  	        $childResult = implode($childResult);
-  	      }
-  	      $appender []= $childResult;
-  	    }
-  	    $result = implode($appender);
-  	  }
-	  }
-	  
-	  
-	  //An XML attribute should not span accross several lines.
-	  $result = trim(preg_replace("#[\n\r\t]+#", ' ', $result));
-	  
-	  
-	  return $result;
+	  $view = new View();
+	  $view->loadFile($fqname);
+
+	  // TODO: pass reference to data provider, so that Universe is shared,
+	  //    and must take care of plugs, macros etc.
+	  return $view->renderSubview($renderer);
 	}
+	
 }

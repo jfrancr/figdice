@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.4
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -21,24 +21,27 @@
  * along with FigDice.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace figdice\classes;
 
-/**
- * In this example we will learn to:
- *
- * - parse and use pieces of XML data.
- */
+class CompiledView
+{
+  private $figNamespace;
+  private $rootTag;
 
-
-// Autoload the Figdice lib
-require_once dirname(__FILE__).'/../../vendor/autoload.php';
-
-use \figdice\View;
-
-$view = new View();
-
-// Well, everything is explained in the template.xml... Go see!
-
-$view->loadFile(dirname(__FILE__).'/template.xml');
-$output = $view->render();
-
-echo $output;
+  public function __construct($figNamespace, Tag $rootTag)
+  {
+    $this->figNamespace = $figNamespace;
+    $this->rootTag = $rootTag; 
+  }
+  public function getFigNamespace()
+  {
+    return $this->figNamespace;
+  }
+  /**
+   * @return Tag
+   */
+  public function getRootTag()
+  {
+    return $this->rootTag;
+  }
+}

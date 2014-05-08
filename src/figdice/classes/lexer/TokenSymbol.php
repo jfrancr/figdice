@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -23,6 +23,8 @@
 
 namespace figdice\classes\lexer;
 use \figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 
 class TokenSymbol extends Token {
 	/**
@@ -46,4 +48,9 @@ class TokenSymbol extends Token {
 		$tokenPath = new TokenPath($this->name);
 		return $tokenPath->evaluate($viewElement);
 	}
+	public function evaluateNEW(Tag $tag, Renderer $renderer)
+	{
+		$tokenPath = new TokenPath($this->name);
+		return $tokenPath->evaluateNEW($tag, $renderer);
+	 }
 }

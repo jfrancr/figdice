@@ -34,7 +34,7 @@
 
 
 // Autoload the Figdice lib
-require_once '../../vendor/autoload.php';
+require_once dirname(__FILE__).'/../../vendor/autoload.php';
 
 use \figdice\View;
 use \figdice\exceptions\FileNotFoundException;
@@ -49,7 +49,7 @@ $view = new View();
 // on every URL.
 // The inner template is responsible for loading its container.
 try {
-	$view->loadFile('template-inner.xml');
+	$view->loadFile(dirname(__FILE__).'/template-inner.xml');
 } catch (FileNotFoundException $ex) {
 	die('template file not found');
 }

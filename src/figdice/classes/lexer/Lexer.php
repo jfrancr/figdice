@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.4
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -28,6 +28,8 @@ use \figdice\exceptions\LexerUnexpectedCharException;
 use \figdice\exceptions\LexerSyntaxErrorException;
 use \figdice\exceptions\LexerUnbalancedParenthesesException;
 use \figdice\LoggerFactory;
+use figdice\classes\Renderer;
+use figdice\classes\Tag;
 use Psr\Log\LoggerInterface;
 
 class Lexer {
@@ -439,6 +441,16 @@ class Lexer {
 		return $this->stackRP[0]->evaluate($viewElement);
 	}
 
+	/**
+	 * @param Renderer $renderer
+	 * @param Tag $tag
+	 * @return mixed
+	 */
+	public function evaluateNEW(Renderer $renderer, Tag $tag) {
+	  $this->tag = $tag;
+	  return $this->stackRP[0]->evaluateNEW($this->tag, $renderer);
+	}
+	
 	/**
 	 * @return string
 	 */

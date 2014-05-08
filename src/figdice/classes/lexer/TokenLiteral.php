@@ -24,6 +24,8 @@
 namespace figdice\classes\lexer;
 
 use \figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 
 class TokenLiteral extends Token {
 	/**
@@ -43,18 +45,9 @@ class TokenLiteral extends Token {
 	 */
 	public function evaluate(ViewElementTag $viewElement) {
 		return $this->value;
-	}/*
-	public function export() {
-		$result = 'Tokenliteral::restore(';
-		if(is_numeric($this->value)) {
-			$result .= $this->value;
-		}
-		else {
-			$result .= '\'' . $this->value . '\'';
-		}
-		return $result . ')';
 	}
-	public static function restore($value) {
-		return new TokenLiteral($value);
-	}*/
+	public function evaluateNEW(Tag $tag, Renderer $renderer)
+	{
+	  return $this->value;
+	}
 }
