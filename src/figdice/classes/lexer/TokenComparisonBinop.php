@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -22,7 +22,8 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 use \figdice\exceptions\LexerArrayToStringConversionException;
 
 
@@ -36,9 +37,9 @@ class TokenComparisonBinop extends TokenBinop {
 		parent::__construct(self::PRIORITY_COMPARATOR);
 		$this->comparator = $comparator;
 	}
-	public function evaluate(ViewElementTag $viewElement) {
-		$opL = $this->operands[0]->evaluate($viewElement);
-		$opR = $this->operands[1]->evaluate($viewElement);
+	public function evaluate(Tag $viewElement, Renderer $renderer) {
+		$opL = $this->operands[0]->evaluate($viewElement, $renderer);
+		$opR = $this->operands[1]->evaluate($viewElement, $renderer);
 
 		switch($this->comparator) {
 			case 'gt' : return ($opL >  $opR);
@@ -61,7 +62,9 @@ class TokenComparisonBinop extends TokenBinop {
 					if(is_array($opL) || is_array($opR)) {
 						//But if the other is an array, we cannot convert Array to String
 						//to perform the comparison, so we throw an error.
-						throw new LexerArrayToStringConversionException();
+						
+						throw new LexerArrayToStringConversionException('Array to string conversion exception in file: ' . 
+						  $renderer->getView()->getFilename() . '('.$viewElement->getLineNumber().')');
 					}
 					else {
 						return (0 === strcmp($opL, $opR));

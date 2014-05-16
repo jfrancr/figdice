@@ -24,6 +24,7 @@
 namespace figdice\classes;
 
 use figdice\View;
+use figdice\exceptions\RequiredAttributeException;
 
 class TagFigInclude extends TagFig {
 	const TAGNAME = 'include';
@@ -36,7 +37,8 @@ class TagFigInclude extends TagFig {
 	{
 	  // "file" attribute is mandatory.
 	  if (! $this->hasAttribute('file')) {
-	    throw new Exception('TODO: MISSING ATTRIBUTE');
+	    //TODO: validate() should be invoked with a filename ?
+	    throw new RequiredAttributeException(self::TAGNAME, ''/*$filename*/, $this->getLineNumber(), '"file" attribute is missing in include tag.');
 	  }
 	}
 	

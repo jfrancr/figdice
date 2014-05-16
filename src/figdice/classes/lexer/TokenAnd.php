@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -22,7 +22,9 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\ViewElementTag;
+
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 
 class TokenAnd extends TokenBinop {
 	public function __construct() {
@@ -30,14 +32,15 @@ class TokenAnd extends TokenBinop {
 	}
 
 	/**
-	 * @param ViewElement $viewElement
+	 * @param Tag $viewElement
+	 * @param Renderer $renderer
 	 * @return mixed
 	 */
-	public function evaluate(ViewElementTag $viewElement) {
+	public function evaluate(Tag $viewElement, Renderer $renderer) {
 		$opL = $this->operands[0];
-		if(true == $opL->evaluate($viewElement)) {
+		if(true == $opL->evaluate($viewElement, $renderer)) {
 			$opR = $this->operands[1];
-			return (true == $opR->evaluate($viewElement));
+			return (true == $opR->evaluate($viewElement, $renderer));
 		}
 		return false;
 	}
