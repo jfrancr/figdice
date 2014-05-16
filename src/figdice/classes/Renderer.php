@@ -60,7 +60,15 @@ class Renderer
    * @var array of Iteration
    */
   private $iterations = array();
-  
+
+  /**
+   * Only available for Root Renderer:
+   * a map of macroName => array(Tag, View)
+   * The Tag is the one carrying the macro attribute, and the View indicates the file.
+   * @var array
+   */
+  private $macros = array();
+
   public function __construct($namespace, Renderer $parentRenderer = null)
   {
     $this->parentRenderer = $parentRenderer;
@@ -131,7 +139,7 @@ class Renderer
 			$lexer = & $this->view->lexers[$expression];
 		}
 
-		$result = $lexer->evaluateNEW($this, $tag);
+		$result = $lexer->evaluate($this, $tag);
 		return $result;
 	}
 
@@ -149,6 +157,9 @@ class Renderer
 	  return $this->view->fetchData($name);
 	}
 
+	/**
+	 * @param string $slotName
+	 */
 	public function defineSlot($slotName)
 	{
 	  if ($this->parentRenderer) {
@@ -158,7 +169,27 @@ class Renderer
 
 	  $this->slots[] = $slotName;
 	}
-	
+
+	private function defineMacroInSubview($macroName, Tag $tag, View $view)
+	{
+	  if ($this->parentRenderer) {
+	    $this->parentRenderer->defineMacroInSubview($macroName, $tag, $view);
+	    return;
+	  }
+	  
+	  $this->macros[$macroName] = array('tag' => $tag, 'view' => $view);
+	}
+
+	public function defineMacro($macroName, Tag $tag)
+	{
+	  if ($this->parentRenderer) {
+	    $this->parentRenderer->defineMacroInSubview($macroName, $tag, $this->getView());
+	    return;
+	  }
+
+    $this->defineMacroInSubview($macroName, $tag, $this->getView());
+	}
+
 	public function plug($slotName, $contents, $append)
 	{
 	  

@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -39,14 +39,7 @@ class TokenLiteral extends Token {
 		parent::__construct();
 		$this->value = $value;
 	}
-	/**
-	 * @param ViewElement $viewElement
-	 * @return mixed
-	 */
-	public function evaluate(ViewElementTag $viewElement) {
-		return $this->value;
-	}
-	public function evaluateNEW(Tag $tag, Renderer $renderer)
+	public function evaluate(Tag $tag, Renderer $renderer)
 	{
 	  return $this->value;
 	}

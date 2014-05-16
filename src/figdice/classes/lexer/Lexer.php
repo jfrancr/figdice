@@ -433,22 +433,13 @@ class Lexer {
 	}
 
 	/**
-	 * @param ViewElement $viewElement
-	 * @return mixed
-	 */
-	public function evaluate(ViewElementTag $viewElement) {
-		$this->viewElement = $viewElement;
-		return $this->stackRP[0]->evaluate($viewElement);
-	}
-
-	/**
 	 * @param Renderer $renderer
 	 * @param Tag $tag
 	 * @return mixed
 	 */
-	public function evaluateNEW(Renderer $renderer, Tag $tag) {
+	public function evaluate(Renderer $renderer, Tag $tag) {
 	  $this->tag = $tag;
-	  return $this->stackRP[0]->evaluateNEW($this->tag, $renderer);
+	  return $this->stackRP[0]->evaluate($this->tag, $renderer);
 	}
 	
 	/**

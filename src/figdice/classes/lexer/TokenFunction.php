@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -94,7 +94,7 @@ class TokenFunction extends TokenOperator {
 	}
 
 	
-	public function evaluateNEW(Tag $tag, Renderer $renderer)
+	public function evaluate(Tag $tag, Renderer $renderer)
 	{
 	  if($this->function === null) {
 	    //Instanciate the Function handler:
@@ -124,38 +124,7 @@ class TokenFunction extends TokenOperator {
 
 	  return $this->function->evaluate($tag, $renderer, $this->arity, $arguments);
 	}
-	
-	/**
-	 * @param ViewElement $viewElement
-	 */
-	public function evaluate(ViewElementTag $viewElement) {
-		if($this->function === null) {
-			//Instanciate the Function handler:
-			$factories = $viewElement->getView()->getFunctionFactories();
-			if ( (null != $factories) && (is_array($factories) ) ) {
-				while(null != ($factory = $this->iterateFactory($factories)) ) {
-					if(null !== ($this->function = $factory->create($this->name)))
-						break;
-				}
-			}
 
-			if($this->function == null) {
-				$logger = LoggerFactory::getLogger(__CLASS__);
-				$message = 'Undeclared function: ' . $this->name;
-				$logger->error($message);
-				throw new FunctionNotFoundException($this->name);
-			}
-		}
-
-		$arguments = array();
-		if($this->operands) {
-			foreach($this->operands as $operandToken) {
-				$arguments[] = $operandToken->evaluate($viewElement);
-			}
-		}
-
-		return $this->function->evaluate($viewElement, $this->arity, $arguments);
-	}
 	/**
 	 * @return boolean
 	 */

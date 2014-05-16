@@ -22,7 +22,6 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\ViewElementTag;
 use \figdice\classes\Tag;
 use \figdice\classes\Renderer;
 
@@ -40,17 +39,9 @@ class TokenSymbol extends Token {
 		$this->name = $name;
 	}
 
-	/**
-	 * @param ViewElement $viewElement
-	 * @return mixed
-	 */
-	public function evaluate(ViewElementTag $viewElement) {
-		$tokenPath = new TokenPath($this->name);
-		return $tokenPath->evaluate($viewElement);
-	}
-	public function evaluateNEW(Tag $tag, Renderer $renderer)
+	public function evaluate(Tag $tag, Renderer $renderer)
 	{
 		$tokenPath = new TokenPath($this->name);
-		return $tokenPath->evaluateNEW($tag, $renderer);
+		return $tokenPath->evaluate($tag, $renderer);
 	 }
 }

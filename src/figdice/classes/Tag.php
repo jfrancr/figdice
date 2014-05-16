@@ -23,6 +23,8 @@
 
 namespace figdice\classes;
 
+use figdice\exceptions\LexerArrayToStringConversionException;
+
 class Tag extends Node
 {
 
@@ -223,6 +225,27 @@ class Tag extends Node
 
 
 
+
+	  //================================================================
+	  // fig:macro
+	  // Check if tag is defining a macro
+	  // A macro definition does not produce output.
+	  // CAUTION: You cannot define a macro on the same tag as a :walk.
+	  // It also leads to undetermined behavior, to nest a macro def
+	  // anywhere inside a walk loop.
+	  if ($this->hasFigAttribute('macro')) {
+	    $renderer->defineMacro($this->getFigAttribute('macro'), $this);
+	    return '';
+	  }
+
+	  //================================================================
+	  // fig:call
+	  // Check if tag is invoking a macro
+	  if ($this->hasFigAttribute('call')) {
+	    return $this->invokeMacro($renderer);
+	  }
+
+
 	  // Check if the tag is defining a slot:
 	  if ($this->hasFigAttribute('slot')) {
 	    //Extract name of slot
@@ -260,7 +283,7 @@ class Tag extends Node
   	  if (count($this->attributes)) {
     	  foreach ($this->attributes as $attrName => $attrValue) {
     	    // Ad Hoc
-    	    $attrValue = $this->processAdHocs($renderer, $attrValue);
+    	    $attrValue = $this->processAdHocs($renderer, $attrName, $attrValue);
 
     	    $attributesToRender[$attrName] = $attrValue;
     	  }
@@ -365,7 +388,14 @@ class Tag extends Node
 	  return $appender;
 	}
 	
-	private function processAdHocs(Renderer $renderer, $attributeValueString)
+	/**
+	 * @param Renderer $renderer
+	 * @param string $attributeName
+	 * @param string $attributeValueString
+	 * @throws LexerArrayToStringConversionException
+	 * @return string
+	 */
+	private function processAdHocs(Renderer $renderer, $attributeName, $attributeValueString)
 	{
 	  $value = $attributeValueString;
 
@@ -386,13 +416,8 @@ class Tag extends Node
 	          $evaluatedValue = '';
 	        }
 	        else {
-	          $message = 'Attribute ' . $attribute . '="' . $value . '" in tag "' . $this->name . '" evaluated to array.';
-	          $message = get_class($this) . ': file: ' . $this->currentFile->getFilename() . '(' . $this->xmlLineNumber . '): ' . $message;
-	          if(! $this->logger) {
-	            $this->logger = LoggerFactory::getLogger(get_class($this));
-	          }
-	          $this->logger->error($message);
-	          throw new Exception($message);
+	          $message = 'Attribute ' . $attributeName . '="' . $attributeValueString . '" in tag "' . $this->name . '" evaluated to array.';
+	          throw new LexerArrayToStringConversionException($message, $renderer->getView()->getFilename(), $this->xmlLineNumber);
 	        }
 	      }
 	  
@@ -491,5 +516,49 @@ class Tag extends Node
 	
 	private function clearFigAttribute($attrName) {
 	  unset($this->figAttributes[$attrName]);
+	}
+
+	/**
+	 * Renders the call to a macro.
+	 * No need to mute the tag that carries the fig:call attribute,
+	 * because the output of the macro call replaces completely the
+	 * whole caller tag.
+	 * @param Renderer $renderer
+	 * @return string
+	 */
+	private function invokeMacro(Renderer $renderer)
+	{
+	  //Retrieve the name of the macro to call.
+	  $macroName = $this->getFigAttribute('call');
+	  
+	  //Prepare the arguments to pass to the macro:
+	  //all the non-fig: attributes, evaluated.
+	  $arguments = array();
+	  foreach($this->attributes as $attribName => $attribValue) {
+      $value = $renderer->evaluate($attribValue, $this);
+      $arguments[$attribName] = $value;
+	  }
+	  
+	  
+	  //Fetch the parameters specified as immediate children
+	  //of the macro call : <fig:param name="" value=""/>
+	  $arguments = array_merge($arguments, $this->collectParamChildren());
+	  
+	  //Retrieve the macro contents.
+	  if(isset($this->view->macros[$macroName])) {
+	    $macroElement = & $this->view->macros[$macroName];
+	    $this->view->pushStackData($arguments);
+	    if(isset($this->iteration)) {
+	      $macroElement->iteration = &$this->iteration;
+	    }
+	  
+	    //Now render the macro contents, but do not take into account the fig:macro
+	    //that its root tag holds.
+	    $result = $macroElement->renderNoMacro();
+	    $this->view->popStackData();
+	    return $result;
+	    //unset($macroElement->iteration);
+	  }
+	  return '';
 	}
 }

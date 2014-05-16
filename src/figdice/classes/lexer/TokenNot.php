@@ -22,7 +22,6 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\ViewElementTag;
 use \figdice\classes\Tag;
 use \figdice\classes\Renderer;
 
@@ -38,18 +37,9 @@ class TokenNot extends TokenOperator {
 		return 1;
 	}
 
-	/**
-	 * @param ViewElement $viewElement
-	 * @return mixed
-	 */
-	public function evaluate(ViewElementTag $viewElement) {
-		$operand = $this->operands[0]->evaluate($viewElement);
-		return ! $operand;
-	}
-	
-	public function evaluateNEW(Tag $tag, Renderer $renderer)
+	public function evaluate(Tag $tag, Renderer $renderer)
 	{
-		$operand = $this->operands[0]->evaluateNEW($tag, $renderer);
+		$operand = $this->operands[0]->evaluate($tag, $renderer);
 		return ! $operand;
 	}
 	
