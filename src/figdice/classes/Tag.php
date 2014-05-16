@@ -346,7 +346,7 @@ class Tag extends Node
 	    // If there is no child content, let's see if we were AutoClose
 	    // or Void.
 	     
-	    if (empty($childrenAppender)) {
+	    if (empty($childrenAppender) && ! (is_numeric($childrenAppender) && ($childrenAppender == 0)) ) {
 	      if ($this->isVoid($renderer)) {
 	        $appender .= '>';
 	      }
@@ -542,23 +542,37 @@ class Tag extends Node
 	  
 	  //Fetch the parameters specified as immediate children
 	  //of the macro call : <fig:param name="" value=""/>
-	  $arguments = array_merge($arguments, $this->collectParamChildren());
+	  $paramTags = array();
+	  if (count($this->children)) {
+	    foreach ($this->children as $childNode) {
+	      if ($childNode instanceof TagFigParam) {
+	        $value = $childNode->render($renderer);
+	        if (is_array($value)) {
+	          $value = implode('', $value);
+	        }
+	        $attributesToRender[$childNode->getParamName()] = $value;
+	      }
+	    }
+	  }
+	   
+	  
+	  $arguments = array_merge($arguments, $paramTags);
 	  
 	  //Retrieve the macro contents.
-	  if(isset($this->view->macros[$macroName])) {
-	    $macroElement = & $this->view->macros[$macroName];
-	    $this->view->pushStackData($arguments);
-	    if(isset($this->iteration)) {
-	      $macroElement->iteration = &$this->iteration;
-	    }
-	  
+	  $macroTag = $renderer->getMacro($macroName);
+	  if(null != $macroTag) {
+	    $renderer->getRootView()->pushStackData($arguments);
 	    //Now render the macro contents, but do not take into account the fig:macro
-	    //that its root tag holds.
-	    $result = $macroElement->renderNoMacro();
-	    $this->view->popStackData();
+	    //that its root tag carries.
+	    $macroTag->clearFigAttribute('macro');
+	    $renderer->blockIterations();
+	    $result = $macroTag->render($renderer);
+	    $renderer->unblockIterations();
+	    $renderer->getRootView()->popStackData();
+	    $macroTag->putFigAttribute('macro', $macroName);
 	    return $result;
-	    //unset($macroElement->iteration);
 	  }
+	  
 	  return '';
 	}
 }

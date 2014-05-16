@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.3
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -38,7 +38,7 @@ $view = new View();
 
 // The template we are studying now, uses the Macro tool.
 // A Macro is similar to a Function in PHP: it has a name,
-// and accepts parameter.
+// and accepts parameters.
 // However it does not "return" a value: rather, it produces
 // in-place output, at the location where it is invoked.
 

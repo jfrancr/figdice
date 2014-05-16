@@ -256,6 +256,30 @@ class Renderer
 	  return '/==SLOT==' . $slotName . '==BEGIN/';
 	}
 	
+	public function blockIterations()
+	{
+	  if ($this->parentRenderer) {
+	    $this->parentRenderer->blockIterations();
+	    return;
+	  }
+	   
+	  //TODO: this logic forbids a macro call inside a loop, where the macro itself
+	  // runs a loop and calls a macro... :)
+	  // The block/unblock mechanism should be implemented as a stack, too.
+	  $this->iterationStopper = $this->iterations;
+	  $this->iterations = array();
+	}
+	public function unblockIterations()
+	{
+	  if ($this->parentRenderer) {
+	    $this->parentRenderer->unblockIterations();
+	    return;
+	  }
+	  
+	  $this->iterations = $this->iterationStopper;
+	  $this->iterationStopper = null;
+	}
+	
 	public function pushIteration(Iteration $iteration)
 	{
 	  if ($this->parentRenderer) {
@@ -294,5 +318,22 @@ class Renderer
 	  }
 	  $iteration = $this->iterations[count($this->iterations) - 1];
 	  return $iteration;
+	}
+	
+	/**
+	 * @param string $macroName
+	 * @return Tag
+	 */
+	public function getMacro($macroName)
+	{
+	  if ($this->parentRenderer) {
+	    return $this->parentRenderer->getMacro($macroName);
+	  }
+
+	  if (isset($this->macros[$macroName])) {
+	    return $this->macros[$macroName]['tag'];
+	  }
+	  
+	  return null;
 	}
 }

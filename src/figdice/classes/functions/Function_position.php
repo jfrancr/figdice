@@ -35,10 +35,11 @@ class Function_position implements FigFunction {
 	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
+	 * @return integer
 	 */
 	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments)
 	{
 		$iteration = $renderer->getIteration();
-		return $iteration->getPosition();
+		return (int) $iteration->getPosition();
 	}
 }
