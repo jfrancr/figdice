@@ -64,6 +64,9 @@ class Compiler
     else if ($node->getName() == $this->figNamespace.TagFigAttr::TAGNAME) {
       $tag = new TagFigAttr($node->getLineNumber());
     }
+    else if ($node->getName() == $this->figNamespace.TagFigFeed::TAGNAME) {
+      $tag = new TagFigFeed($node->getLineNumber());
+    }
     else if ($this->checkNsPrefix($node->getName())) {
       $tag = new TagFig($this->stripNs($node->getName()), $node->getLineNumber());
     }

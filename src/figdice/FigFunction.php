@@ -23,7 +23,9 @@
 
 namespace figdice;
 
-use figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
+
 
 /**
  * Your FigFunction instances are created at most once per View lifecycle.
@@ -36,9 +38,10 @@ use figdice\classes\ViewElementTag;
  */
 interface FigFunction {
 	/**
-	 * @param ViewElementTag $viewElement
+	 * @param Tag $tag
+	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	function evaluate(ViewElementTag $viewElement, $arity, $arguments);
+	function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments);
 }

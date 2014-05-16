@@ -121,10 +121,8 @@ class TokenFunction extends TokenOperator {
 	    }
 	  }
 	  
-	  //TODO: on va vouloir du Tag ici
-	  $viewElement = new ViewElementTag($renderer->getView(), $tag->getName(), $tag->getLineNumber());
 
-	  return $this->function->evaluate($viewElement, $this->arity, $arguments);
+	  return $this->function->evaluate($tag, $renderer, $this->arity, $arguments);
 	}
 	
 	/**

@@ -53,6 +53,13 @@ class Renderer
    */
   private $plugs = array();
 
+  /**
+   * Acts as a stack for nested Iterations.
+   * They are maintained at the Root Renderer only.
+   * Sub-renderers do not deal with them.
+   * @var array of Iteration
+   */
+  private $iterations = array();
   
   public function __construct($namespace, Renderer $parentRenderer = null)
   {
@@ -216,5 +223,45 @@ class Renderer
 	public function makeBeginSlotMarker($slotName)
 	{
 	  return '/==SLOT==' . $slotName . '==BEGIN/';
+	}
+	
+	public function pushIteration(Iteration $iteration)
+	{
+	  if ($this->parentRenderer) {
+	    $this->parentRenderer->pushIteration($iteration);
+	    return;
+	  }
+	  
+	  array_push($this->iterations, $iteration);
+	}
+
+	/**
+	 * @return Iteration
+	 */
+	public function popIteration()
+	{
+	  if ($this->parentRenderer) {
+	    return $this->parentRenderer->popIteration();
+	  }
+	  
+	  $iteration = array_pop($this->iterations);
+	  return $iteration;
+	}
+	
+	/**
+	 * @return Iteration
+	 */
+	public function getIteration()
+	{
+	  if ($this->parentRenderer) {
+	    return $this->parentRenderer->getIteration();
+	  }
+	   
+	  
+	  if (empty($this->iterations)) {
+	    return new Iteration(0);
+	  }
+	  $iteration = $this->iterations[count($this->iterations) - 1];
+	  return $iteration;
 	}
 }

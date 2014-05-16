@@ -24,23 +24,21 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 use \figdice\LoggerFactory;
 
 class Function_position implements FigFunction {
-	public function __construct() {
-	}
 
 	/**
-	 * @param {@link ViewElement} $viewElement
+	 * @param Tag $tag
+	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	public function evaluate(ViewElementTag $viewElement, $arity, $arguments) {
-		/**
-		 * @var Iteration
-		 */
-		$iteration = $viewElement->getIteration();
+	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments)
+	{
+		$iteration = $renderer->getIteration();
 		return $iteration->getPosition();
 	}
 }

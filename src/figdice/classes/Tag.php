@@ -29,6 +29,9 @@ class Tag extends Node
   private $xmlLineNumber;
   private $name;
   private $figAttributes;
+  /**
+   * @var array
+   */
   private $attributes;
   protected $children;
 
@@ -76,6 +79,13 @@ class Tag extends Node
 	protected function hasAttribute($name)
 	{
 	  return isset($this->attributes[$name]);
+	}
+	/**
+	 * @return array
+	 */
+	protected function getAttributes()
+	{
+	  return $this->attributes;
 	}
 	/**
 	 * @param string $name
@@ -444,11 +454,8 @@ class Tag extends Node
       $datasetCount = 1;
     }
   
-    if(!isset($this->iteration) || ($this->iteration == null) ) {
-      $this->iteration = array();
-    }
     $newIteration = new Iteration($datasetCount);
-    array_push($this->iteration, $newIteration);
+    $renderer->pushIteration($newIteration);
   
     if(is_array($dataset) || (is_object($dataset) && ($dataset instanceof Iterable)) ) {
       foreach($dataset as $key => $data) {
@@ -461,14 +468,14 @@ class Tag extends Node
         $renderer->getRootView()->popStackData();
       }
     }
-    array_pop($this->iteration);
+    $renderer->popIteration();
     
     
     // Restore fig:walk property
     $this->putFigAttribute('walk', $figIterateAttribute);
     return $outputBuffer;
-  }    
-	
+  }
+
 	public function validate()
 	{
 	  // TODO: parse expressions and adhocs
