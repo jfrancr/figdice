@@ -47,8 +47,8 @@ class FigXmlTest extends PHPUnit_Framework_TestCase {
 		$source = <<<ENDXML
 <html>
 	<br fig:void="true" />
-	<hr fig:void="true"> discarded because forced void </hr>
-	<hr />
+	<hr fig:void="true">  </hr>
+	<hr/>
 </html>
 ENDXML;
 
@@ -69,7 +69,7 @@ ENDHTML;
 		$source = <<<ENDXML
 <html>
 	<input name="name" fig:auto="true">
-		<fig:attr name="id">myId</fig:attr> Discarded because forced auto
+		<fig:attr name="id">myId</fig:attr>  
 	</input>
 </html>
 ENDXML;

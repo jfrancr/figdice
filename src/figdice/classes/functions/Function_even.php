@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.4
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -24,7 +24,8 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 
 class Function_even implements FigFunction {
 	public function __construct() {
@@ -35,8 +36,8 @@ class Function_even implements FigFunction {
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	public function evaluate(ViewElementTag $viewElement, $arity, $arguments) {
-		$iteration = $viewElement->getIteration();
+	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+		$iteration = $renderer->getIteration();
 		$position = $iteration->getPosition();
 		return (($position % 2) == 0);
 	}

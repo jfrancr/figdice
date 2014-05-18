@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.2
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -25,7 +25,6 @@ use figdice\classes\lexer\Lexer;
 use figdice\exceptions\LexerUnexpectedCharException;
 use figdice\View;
 use figdice\classes\File;
-use figdice\classes\ViewElementTag;
 
 /**
  * Unit Test Class for basic Lexer expressions
@@ -52,7 +51,9 @@ class ExpressionsTest extends PHPUnit_Framework_TestCase {
 		$parseResult = $lexer->parse($viewElement);
 		$this->assertTrue($parseResult, 'parsed expression: ' . $lexer->getExpression());
 
-		return $lexer->evaluate($viewElement);
+		$renderer = $this->getMock('\\figdice\\classes\\Renderer');
+		$tag = $this->getMockBuilder('\\figdice\\classes\\Tag')->disableOriginalConstructor()->getMock();
+		return $lexer->evaluate($renderer, $tag);
 	}
 
 

@@ -69,7 +69,7 @@ class Renderer
    */
   private $macros = array();
 
-  public function __construct($namespace, Renderer $parentRenderer = null)
+  public function __construct($namespace = 'fig:', Renderer $parentRenderer = null)
   {
     $this->parentRenderer = $parentRenderer;
     $this->namespace = $namespace;

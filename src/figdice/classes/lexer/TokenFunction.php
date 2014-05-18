@@ -117,7 +117,7 @@ class TokenFunction extends TokenOperator {
 	  $arguments = array();
 	  if($this->operands) {
 	    foreach($this->operands as $operandToken) {
-	      $arguments[] = $operandToken->evaluateNEW($tag, $renderer);
+	      $arguments[] = $operandToken->evaluate($tag, $renderer);
 	    }
 	  }
 	  

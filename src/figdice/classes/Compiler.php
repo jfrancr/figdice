@@ -85,6 +85,11 @@ class Compiler
         $tag->putAttribute($name, $value);
       }
     }
+    
+    //AutoClose ?
+    if ( (! $tag->hasFigAttribute('auto')) && ($node->autoclose) ) {
+      $tag->putFigAttribute('auto', 'true');
+    }
 
     for ($i = 0; $i < $node->getChildrenCount(); ++ $i) {
       $child = $node->getChildNode($i);

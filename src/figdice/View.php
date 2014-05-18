@@ -603,22 +603,21 @@ class View {
 		if( $element->autoclose ) {
 			$pos = xml_get_current_byte_index($xmlParser);
 			//The /> sequence as the previous 2 chars of current position
-			//works on Windows XP Pro 32bits with libxml 2.6.26.
+			//works in most cases with libxml 2.6.26 and a UTF-8 input stream.
 			if(substr($this->source, $pos - 2, 2) == '/>') {
+			  //Leave the autoclose flag!
 				return;
 			}
+			$element->autoclose = false;
 			//Find the opening bracket < of the closing tag:
-			$latestOpeningBracket = strrpos(substr($this->source, 0, $pos + $this->firstTagOffset+1), '<');
+			//$latestOpeningBracket = strrpos(substr($this->source, 0, $pos + $this->firstTagOffset+1), '<');
 			//Very risky. Work with libxml 2.6.26 on Windows XP Pro 32bit.
 			//Unsure for any other platform...
 			//TODO: Anyway it works only for top-level fig file. Not for included files, it seems.
-			if(!preg_match('#^<[^>]+/>#', substr($this->source, $latestOpeningBracket))) {
-				$element->autoclose = false;
-			}
+			//if(!preg_match('#^<[^>]+/>#', substr($this->source, $latestOpeningBracket))) {
+			//	$element->autoclose = false;
+			//}
 		}
-		//TODO: Bad bad! hard-coded br tag. Just out of laziness. The only real solution will be to rewrite an XML parser (on-the-fly in the file).
-		if($tagName == 'br')
-			$element->autoclose = true;
 	}
 
 	/**

@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -24,14 +24,15 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 use \figdice\LoggerFactory;
 
 class Function_php implements FigFunction {
 	public function __construct() {
 	}
 
-	public function evaluate(ViewElementTag $viewElement, $arity, $arguments) {
+	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
 		$funcName = array_shift($arguments);
 		if(! function_exists($funcName)) {
 			$logger = LoggerFactory::getLogger(get_class($this));

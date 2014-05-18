@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -22,7 +22,9 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\ViewElementTag;
+
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 
 class TokenUnarySign extends TokenOperator {
 	/**
@@ -46,9 +48,9 @@ class TokenUnarySign extends TokenOperator {
 	 * @param ViewElement $viewElement
 	 * @return mixed
 	 */
-	public function evaluate(ViewElementTag $viewElement) {
+	public function evaluate(Tag $viewElement, Renderer $renderer) {
 		if($this->sign == '-')
-			return (- $this->operands[0]->evaluate($viewElement));
-		return $this->operands[0]->evaluate($viewElement);
+			return (- $this->operands[0]->evaluate($viewElement, $renderer));
+		return $this->operands[0]->evaluate($viewElement, $renderer);
 	}
 }

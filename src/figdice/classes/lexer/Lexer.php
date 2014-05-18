@@ -148,7 +148,7 @@ class Lexer {
 	}
 
 	/**
-	 * @param ViewElement $viewElement
+	 * @param Tag $viewElement
 	 * @return boolean
 	 */
 	public function parse($viewElement) {

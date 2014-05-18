@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.4
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -24,7 +24,8 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 use \figdice\LoggerFactory;
 use figdice\exceptions\FunctionCallException;
 
@@ -37,7 +38,7 @@ class Function_if implements FigFunction {
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	public function evaluate(ViewElementTag $viewElement, $arity, $arguments) {
+	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
 		if ($arity != 3) {
 			throw new FunctionCallException('if', 'Expected 3 arguments, ' . $arity . ' received.',
 					 $viewElement->getCurrentFile()->getFilename(), $viewElement->getLineNumber());

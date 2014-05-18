@@ -93,7 +93,7 @@ class Tag extends Node
 	 * @param string $name
 	 * @return boolean
 	 */
-	protected function hasFigAttribute($name)
+	public function hasFigAttribute($name)
 	{
 	  return isset($this->figAttributes[$name]);
 	}
@@ -345,17 +345,16 @@ class Tag extends Node
 	  else {
 	    // If there is no child content, let's see if we were AutoClose
 	    // or Void.
-	     
-	    if (empty($childrenAppender) && ! (is_numeric($childrenAppender) && ($childrenAppender == 0)) ) {
-	      if ($this->isVoid($renderer)) {
-	        $appender .= '>';
-	      }
-	      else if ($this->isAutoClose($renderer)) {
-	        $appender .= '/>';
-	      }
-	      else {
-	        $appender .= '></' . $this->name . '>';
-	      }
+	    
+	    if ($this->isVoid($renderer) && ('' == trim($childrenAppender))) {
+	      $appender .= '>';
+	    }
+	    else if ($this->isAutoClose($renderer) && ('' == trim($childrenAppender))) {
+	      $appender .= ' />';
+	    }
+	    
+	    else if (empty($childrenAppender) && ! (is_numeric($childrenAppender) && ($childrenAppender == 0)) ) {
+        $appender .= '></' . $this->name . '>';
 	    }
 	    else {
 	      $appender .= '>';

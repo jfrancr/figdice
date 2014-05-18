@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.4
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -24,20 +24,21 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\ViewElementTag;
-use \figdice\LoggerFactory;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 
 class Function_odd implements FigFunction {
 	public function __construct() {
 	}
 
 	/**
-	 * @param ViewElement $viewElement
+	 * @param Tag $viewElement
+	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	public function evaluate(ViewElementTag $viewElement, $arity, $arguments) {
-		$iteration = $viewElement->getIteration();
+	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+		$iteration = $renderer->getIteration();
 		$position = $iteration->getPosition();
 		return (($position % 2) == 1);
 	}
