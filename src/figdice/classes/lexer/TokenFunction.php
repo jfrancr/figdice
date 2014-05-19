@@ -113,7 +113,7 @@ class TokenFunction extends TokenOperator {
 	      throw new FunctionNotFoundException($this->name);
 	    }
 	  }
-	  
+
 	  $arguments = array();
 	  if($this->operands) {
 	    foreach($this->operands as $operandToken) {

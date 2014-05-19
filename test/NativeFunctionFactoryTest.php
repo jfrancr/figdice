@@ -26,6 +26,7 @@ use figdice\exceptions\LexerUnexpectedCharException;
 use figdice\View;
 use figdice\classes\File;
 use figdice\classes\ViewElementTag;
+use figdice\classes\Renderer;
 
 /**
  * Unit Test Class for basic Lexer expressions
@@ -45,6 +46,8 @@ class NativeFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 
 		// A Lexer object needs to live inside a View,
 		// and be bound to a ViewElementTag instance.
+		// TODO: this is currently changing in the 2.1 refactoring.
+		
 		// They both need to be bound to a File object,
 		// which must respond to the getCurrentFile method.
 
@@ -64,7 +67,17 @@ class NativeFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 		$parseResult = $lexer->parse($viewElement);
 		$this->assertTrue($parseResult, 'parsed expression: ' . $lexer->getExpression());
 
-		return $lexer->evaluate($viewElement);
+		$renderer = $this->getMock('\\figdice\\classes\\Renderer');
+		$renderer->expects($this->any())
+		->method('getRootView')
+		->will($this->returnValue($view));
+		$renderer->expects($this->any())
+		->method('getView')
+		->will($this->returnValue($view));
+		
+		$tag = $this->getMockBuilder('\\figdice\\classes\\Tag')->disableOriginalConstructor()->getMock();
+		
+		return $lexer->evaluate($renderer, $tag);
 	}
 
 
@@ -97,12 +110,20 @@ class NativeFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(0, $this->lexExpr(' count( 12 ) '));
 	} 
 	public function testCountOfArrayIsCount() {
+		$source = <<<ENDXML
+<fig:x fig:text=" count( /myArray ) " />
+ENDXML;
+		$this->view->loadString($source);
 		$this->view->mount('myArray', array(1,2,3));
-		$this->assertEquals(3, $this->lexExpr(' count( /myArray ) '));
+		$this->assertEquals(3, $this->view->render());
 	} 
 	public function testSumOfArrayIsOk() {
+		$source = <<<ENDXML
+<fig:x fig:text=" sum( /myArray ) " />
+ENDXML;
+		$this->view->loadString($source);
 		$this->view->mount('myArray', array(1,2,3));
-		$this->assertEquals(6, $this->lexExpr(' sum( /myArray ) '));
+		$this->assertEquals(6, $this->view->render());
 	}
 	public function testGlobalConst() {
 		define('MY_GLOBAL_TEST_CONST', 12);

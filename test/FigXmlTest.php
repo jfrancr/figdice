@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.3
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -112,7 +112,7 @@ ENDHTML;
 ENDXML;
 		$this->view->loadString($source);
 		$this->view->mount('data', array('a', 'b', 'c'));
-		$this->assertEquals("a\nb\nc\n", $this->view->render());
+		$this->assertEquals("\n  a\n\n  b\n\n  c\n", $this->view->render());
 	}
 
 	/**

@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.3
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -24,7 +24,8 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\ViewElementTag;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 use \figdice\LoggerFactory;
 
 class Function_const implements FigFunction {
@@ -32,11 +33,12 @@ class Function_const implements FigFunction {
 	}
 
 	/**
-	 * @param ViewElement $viewElement
+	 * @param Tag $viewElement
+	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments one element: name of global constant, or class constant (myClass::myConst)
 	 */
-	public function evaluate(ViewElementTag $viewElement, $arity, $arguments) {
+	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
 		$constantName = trim($arguments[0]);
 		
 		if(preg_match('#([^:]+)::#', $constantName, $matches)) {

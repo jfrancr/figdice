@@ -154,7 +154,7 @@ class Renderer
 	 */
 	public function getData($name)
 	{
-	  return $this->view->fetchData($name);
+	  return $this->getRootView()->fetchData($name);
 	}
 
 	/**

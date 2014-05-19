@@ -41,6 +41,7 @@ class UserDefinedFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
 		$this->viewElement = null;
+		$this->view = new View();
 	}
 	protected function tearDown() {
 		$this->viewElement = null;
@@ -61,7 +62,18 @@ class UserDefinedFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 		$parseResult = $lexer->parse($viewElement);
 		$this->assertTrue($parseResult, 'parsed expression: ' . $lexer->getExpression());
 
-		return $lexer->evaluate($viewElement);
+		$view = $this->view;
+		$renderer = $this->getMock('\\figdice\\classes\\Renderer');
+		$renderer->expects($this->any())
+		->method('getRootView')
+		->will($this->returnValue($view));
+		$renderer->expects($this->any())
+		->method('getView')
+		->will($this->returnValue($view));
+		
+		$tag = $this->getMockBuilder('\\figdice\\classes\\Tag')->disableOriginalConstructor()->getMock();
+		
+		return $lexer->evaluate($renderer, $tag);
 	}
 
 	/**
@@ -76,13 +88,18 @@ class UserDefinedFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 
 		// In this test, we need a real View object, because
 		// it embeds a real NativeFunctionFactory instance.
-		$view = new View();
+		$view = $this->view;
 
 		$viewFile = $this->getMock('\\figdice\\classes\\File', null, array('PHPUnit'));
 		$viewElement = $this->getMock('\\figdice\\classes\\ViewElementTag', array('getCurrentFile'), array(& $view, 'testtag', 12));
 		$viewElement->expects($this->any())
 			->method('getCurrentFile')
 			->will($this->returnValue($viewFile));
+
+		$viewElement->expects($this->any())
+		->method('getView')
+		->will($this->returnValue($view));
+
 
 		$this->viewElement = $viewElement;
 		return $viewElement;

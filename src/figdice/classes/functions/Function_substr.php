@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.4
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -24,8 +24,8 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\ViewElementTag;
-use \figdice\LoggerFactory;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 use \figdice\exceptions\FunctionCallException;
 
 class Function_substr implements FigFunction {
@@ -36,16 +36,17 @@ class Function_substr implements FigFunction {
 	 * Function's arguments:
 	 *  timestamp, format [, locale]
 	 * 
-	 * @param ViewElement $viewElement
+	 * @param Tag $viewElement
+	 * @param Renderer $vrenderer
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	public function evaluate(ViewElementTag $viewElement, $arity, $arguments) {
+	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
 		if($arity <= 1) {
 			throw new FunctionCallException(
 				'substr', 
 				'Too few arguments.', 
-				$viewElement->getCurrentFile()->getFilename(), 
+				$renderer->getView()->getFilename(), 
 				$viewElement->getLineNumber()
 			);
 		}

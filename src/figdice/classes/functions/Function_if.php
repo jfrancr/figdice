@@ -34,14 +34,15 @@ class Function_if implements FigFunction {
 	}
 
 	/**
-	 * @param ViewElement $viewElement
+	 * @param Tag $viewElement
+	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
 	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
 		if ($arity != 3) {
 			throw new FunctionCallException('if', 'Expected 3 arguments, ' . $arity . ' received.',
-					 $viewElement->getCurrentFile()->getFilename(), $viewElement->getLineNumber());
+					 $renderer->getView()->getFilename(), $viewElement->getLineNumber());
 		}
 		return ($arguments[0] ? $arguments[1] : $arguments[2]);
 	}

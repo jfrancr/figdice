@@ -407,6 +407,10 @@ class View {
 		
 		
 		$compiler = new Compiler($this->figNamespace);
+		if (null == $this->rootNode) {
+		  $filename = $this->getFilename();
+		  throw new XMLParsingException('Failed to parse: '. $filename, $filename, 0);
+		}
 		$compiler->compile($this->rootNode);
 		
 		
@@ -757,7 +761,9 @@ class View {
 	 * @return string
 	 */
 	public function getFilename() {
-		return $this->file->getFilename();
+	  if ($this->file)
+  		return $this->file->getFilename();
+	  return __FILE__;
 	}
 	/**
 	 * @return string
@@ -825,6 +831,10 @@ class View {
   {
     $this->parse();
     $compiler = new Compiler($this->figNamespace);
+    if (null == $this->rootNode) {
+      $filename = $this->getFilename();
+      throw new XMLParsingException('Failed to parse: '.$filename, $filename, 0);
+    }
     $this->compiledView = $compiler->compile($this->rootNode);
     return $this->compiledView;
   }

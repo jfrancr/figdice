@@ -61,6 +61,9 @@ class LoggerTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue($parseResult, 'parsed expression: ' . $lexer->getExpression());
 
 		$renderer = $this->getMock('\\figdice\\classes\\Renderer');
+		$renderer->expects($this->any())
+		  ->method('getRootView')
+		  ->will($this->returnValue($view));
 		$tag = $this->getMockBuilder('\\figdice\\classes\\Tag')->disableOriginalConstructor()->getMock();
 		return $lexer->evaluate($renderer, $tag);
 	}

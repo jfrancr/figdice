@@ -56,7 +56,7 @@ class TokenPath extends Token {
 	 * @return mixed
 	 */
 	public function evaluate(Tag $tag, Renderer $renderer) {
-	
+	  
 	  if(0 == ($count = count($this->path))) {
 	    return null;
 	  }
@@ -66,7 +66,7 @@ class TokenPath extends Token {
 	  for($i = 0; $i < $count; ++$i) {
 	
 	    if($this->path[$i] instanceof Token) {
-	      $symbolName = $this->path[$i]->evaluateNEW($tag, $renderer);
+	      $symbolName = $this->path[$i]->evaluate($tag, $renderer);
 	    }
 	    else if($this->path[$i] instanceof PathElementRoot) {
 	      $symbolName = '/';
