@@ -801,31 +801,6 @@ class View {
 			return null;
 		}
 	}
-
-	/**
-	 * Checks whether specified attribute name is in the fig namespace
-	 * (whose prefix can be overriden by xmlns declaration).
-	 * @param string $attribute
-	 * @return boolean
-	 */
-	public function isFigAttribute($attribute) {
-		return (substr($attribute, 0, strlen($this->figNamespace)) == $this->figNamespace);
-	}
-
-	/**
-	 * This method is called by ViewElementTag objects, when processing
-	 * a fig:slot item.
-	 * @param string $slotName
-	 * @param Slot $slot
-	 */
-  public function assignSlot($slotName, Slot & $slot) {
-      $this->slots[$slotName] = & $slot;
-  }
-
-  public function addPlug($slotName, ViewElementTag & $element) {
-    $this->plugs[$slotName] [] = & $element;
-  }
-  
   
   public function compile()
   {

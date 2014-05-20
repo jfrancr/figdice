@@ -24,20 +24,19 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\ViewElementTag;
-use \figdice\LoggerFactory;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
 
 class Function_format_number implements FigFunction {
-	public function __construct() {
-	}
 
 	/**
-	 * @param ViewElement $viewElement
+	 * @param Tag $viewElement
+	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	public function evaluate(ViewElementTag $viewElement, $arity, $arguments) {
-		$number = $arguments[0];
+	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+  	$number = $arguments[0];
 		if(! is_numeric($number)) {
 			return '';
 		}

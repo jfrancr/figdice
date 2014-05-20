@@ -24,24 +24,24 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\ViewElementTag;
-use \figdice\LoggerFactory;
+use \figdice\classes\Tag;
+use \figdice\classes\Renderer;
+use figdice\exceptions\FunctionCallException;
 
 class Function_format_timestamp implements FigFunction {
-	public function __construct() {
-	}
 	
 	/**
 	 * Function's arguments:
 	 *  timestamp, format [, locale]
 	 * 
-	 * @param ViewElement $viewElement
+	 * @param Tag $viewElement
+	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	public function evaluate(ViewElementTag $viewElement, $arity, $arguments) {
+	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
 		if($arity < 2)
-			throw new Exception();
+			throw new FunctionCallException('format_timestamp', 'Missing argument 2 (format)', $renderer->getView()->getFilename(), $viewElement->getLineNumber());
 
 		$timestamp = $arguments[0];
 		$format = $arguments[1];

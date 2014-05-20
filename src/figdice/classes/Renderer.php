@@ -123,7 +123,13 @@ class Renderer
     return $output;
   }
   
-  public function checkNsPrefix($string)
+	/**
+	 * Checks whether specified attribute (or tag) name is in the fig namespace
+	 * (whose prefix can be overriden by xmlns declaration).
+	 * @param string $string
+	 * @return boolean
+	 */
+	public function checkNsPrefix($string)
   {
     return (substr($string, 0, strlen($this->namespace)) == $this->namespace);
   }

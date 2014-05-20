@@ -23,7 +23,6 @@
 
 namespace figdice\classes\lexer;
 
-use \figdice\classes\ViewElementTag;
 use \figdice\classes\Tag;
 use \figdice\classes\Renderer;
 

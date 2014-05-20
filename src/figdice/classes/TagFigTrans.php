@@ -24,6 +24,7 @@
 namespace figdice\classes;
 
 use figdice\exceptions\RequiredAttributeException;
+use figdice\exceptions\DictionaryEntryNotFoundException;
 
 class TagFigTrans extends TagFig {
 	const TAGNAME = 'trans';
@@ -82,32 +83,30 @@ class TagFigTrans extends TagFig {
 	    }
 	    //Ask current file to translate key:
 	    try {
-	    $value = $renderer->translate($key, $dictionaryName);
+	      $value = $renderer->translate($key, $dictionaryName);
 	    } catch(DictionaryEntryNotFoundException $ex) {
-	    LoggerFactory::getLogger('Dictionary')->error('Translation not found: key=' . $key . ', dictionary=' . $dictionaryName . ', language=' . $this->getView()->getLanguage() . ', file=' . $this->getCurrentFile()->getFilename() . ', line=' . $this->xmlLineNumber);
-	    return $key;
+	      LoggerFactory::getLogger('Dictionary')->error('Translation not found: key=' . $key . ', dictionary=' . $dictionaryName . ', language=' . $targetLanguage . ', file=' . $renderer->getView()->getFilename() . ', line=' . $this->xmlLineNumber);
+	      return $key;
 	    }
 	  }
 	  
 	  
 	  //Fetch the parameters specified as immediate children
-	  //of the macro call : <fig:param name="" value=""/>
+	  //of the trans call : <fig:param name="" value=""/>
 	  //TODO: Currently, the <fig:param> of a macro call cannot hold any fig:cond or fig:case conditions.
 	  $arguments = array();
 	  if (count($this->children)) {
   	  foreach ($this->children as $child) {
-	      if($child instanceof ViewElementTag) {
-      	  if($child->name == $this->view->figNamespace . 'param') {
-        	  //If param is specified with an immediate value="" attribute :
-      	    if(isset($child->attributes['value'])) {
-        	    $arguments[$child->attributes['name']] = $this->evaluate($child->attributes['value']);
-      	    }
-    	      //otherwise, the actual value is not scalar but is
-    	      //a nodeset in itself. Let's pre-render it and use it as text for the argument.
-    	      else {
-      	      $arguments[$child->attributes['name']] = $child->render();
-        	  }
-       	  }
+	      if($child instanceof TagFigParam) {
+      	  //If param is specified with an immediate value="" attribute :
+    	    if($child->hasAttribute('value')) {
+      	    $arguments[$child->getAttribute('name')] = $renderer->evaluate($child->getAttribute('value'), $this);
+    	    }
+  	      //otherwise, the actual value is not scalar but is
+  	      //a nodeset in itself. Let's pre-render it and use it as text for the argument.
+  	      else {
+    	      $arguments[$child->getAttribute('name')] = $child->render($renderer);
+      	  }
      	  }
    	  }
 	  }
@@ -121,13 +120,12 @@ class TagFigTrans extends TagFig {
       $attributeName = $matches[1];
       //If there is a corresponding fig:param, use it:
       if(array_key_exists($attributeName, $arguments)) {
-        //Data coming from my database can contain accented ascii chars (like � : chr(233)),
-        //which may corrupt the subsequent: return utf8_decode($value) at the end of this function.
+        //TODO: is this utf8_encode necessary??
         $attributeValue = utf8_encode($arguments[$attributeName]);
       }
       //Otherwise, use the inline attribute.
       else {
-        $expression = $this->getAttribute($attributeName, false);
+        $expression = $this->getAttribute($attributeName);
         $attributeValue = null;
         if($expression) {
           $attributeValue = $renderer->evaluate($expression, $this);
@@ -136,9 +134,6 @@ class TagFigTrans extends TagFig {
   	  $value = str_replace('{' . $attributeName . '}', $attributeValue, $value);
 	  }
 	  
-	  //TODO: les param�tres de traduction pass�s en fig:param plut�t.
-	  //Ce mode est important pour passer des param�tres conditionnels, par exemple
-	  //(bien que je suppose que pour des traductions c'est maladroit).
 	  
 	  //If the translated value is empty (ie. we did find an entry in the proper dictionary file,
 	  //but this entry has an empty value), it means that the entry remains to be translated by the person in charge.
@@ -148,8 +143,8 @@ class TagFigTrans extends TagFig {
   	  LoggerFactory::getLogger('Dictionary')->error(
     	  'Empty translation: key=' . $key .
     	  ', dictionary=' . $dictionaryName .
-    	  ', language=' . $this->getView()->getLanguage() .
-    	  ', file=' . $this->getCurrentFilename() . ', line=' . $this->xmlLineNumber);
+    	  ', language=' . $targetLanguage .
+    	  ', file=' . $renderer->getView()->getFilename() . ', line=' . $this->xmlLineNumber);
 	  }
 		return $value;
 

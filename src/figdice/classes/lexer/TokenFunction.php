@@ -25,8 +25,6 @@ namespace figdice\classes\lexer;
 
 use \figdice\FunctionFactory;
 use \figdice\LoggerFactory;
-use \figdice\classes\ViewElement;
-use \figdice\classes\ViewElementTag;
 use \figdice\classes\Tag;
 use \figdice\classes\Renderer;
 use \figdice\exceptions\FunctionNotFoundException;
