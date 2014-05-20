@@ -49,6 +49,10 @@ class TagFigFeed extends TagFig {
 
 	public function render(Renderer $renderer) 
 	{
+	  if (! $this->checkFigCond($renderer))
+	    return '';
+
+
 	  $className = $this->getAttribute('class');
 	  if(null === $className) {
 	    $errormsg = 'Missing "class" attribute for fig:feed tag, in ' . $renderer->getView()->getFilename() . '(' . $this->getLineNumber() . ')';

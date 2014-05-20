@@ -38,7 +38,21 @@ class Renderer
    * @var Renderer
    */
   private $parentRenderer;
-  
+
+  /**
+   * Associative array (string)name=>Dictionary
+	 * Stacked model of dictionaries :
+	 * a dictionary is attached to a specific fig file. 
+	 * An anonymous dictionary cannot be overridable
+	 * and is always added to the current file.
+	 * A named dictionary replaces (overrides) an already defined one in same file if exists,
+	 * or is added to the highest ancestor of the current file which does not define a
+	 * dictionary by same name (ie. we never override a parent dictionary). 
+   * 
+   * @var array
+   */
+  private $dictionaries = array();
+ 
   /**
    * Map of the defined slots. Easy to
    * lookup whether a slot is defined, by
@@ -335,5 +349,127 @@ class Renderer
 	  }
 	  
 	  return null;
+	}
+
+	/**
+	 * Attaches the specified dictionary to the current file, under specified name.
+	 * If name is the empty string, then the dictionary is not named,
+	 * and cannot override an already loaded dictionary,
+	 * and cannot be made available to parent files.
+	 * To the contrary, attaching an explicitly named dictionary tries to
+	 * hook it first to the parent (recursively), if the parent exists and if it does not
+	 * already have a dictionary by same name. Then, if immediate parent has a dictionary
+	 * by same name, then we attach it to the file itself (thus potentially overwriting
+	 * another dictionary by same name in current file).
+	 * @param Dictionary & $dictionary
+	 * @param string $name
+	 */
+	public function addDictionary(Dictionary & $dictionary, $name) {
+	  if($name) {
+	    //If I already have a dictionary by this name,
+	    //I am only requested to overwrite.
+	    if(array_key_exists($name, $this->dictionaries)) {
+	      $this->dictionaries[$name] = & $dictionary;
+	      return;
+	    }
+	
+	    //Root file: store in place.
+	    if(! $this->parentRenderer) {
+	      $this->dictionaries[$name] = & $dictionary;
+	      return;
+	    }
+	
+	    //Otherwise, try to bubble up the event, but then do not overwrite
+	    //the dictionary anywhere in the parent hierarchy.
+	    if($this->parentRenderer->tentativeAddDictionary($dictionary, $name)) {
+	      return;
+	    }
+	    $this->dictionaries[$name] = & $dictionary;
+	    return;
+	  }
+	
+	  //Anonymus dictionary:
+	  else {
+	    //Prepend the array of dictionaries with the new one,
+	    //so that it's quicker to search during the translating phase.
+	    array_unshift($this->dictionaries, $dictionary);
+	    return;
+	  }
+	}
+
+
+	/**
+	 * In this method, we try to add the named dictionary to current file,
+	 * but do not overwrite. If dictionary by same name exists, we return false.
+	 * @param Dictionary & $dictionary
+	 * @param string $name
+	 * @return boolean
+	 */
+	private function tentativeAddDictionary(Dictionary & $dictionary, $name) {
+	  //Do not overwrite! Stop the recusrion as soon as a dictionary by same name exists up in the hierarchy.
+	  if(array_key_exists($name, $this->dictionaries)) {
+	    //Returning false will cause the previous call in the recursion to store it in place.
+	    return false;
+	  }
+	  //Root file: store in place.
+	  if(! $this->parentRenderer) {
+	    $this->dictionaries[$name] = & $dictionary;
+	    return true;
+	  }
+	  if(! $this->parentRenderer->tentativeAddDictionary($dictionary, $name)) {
+	    $this->dictionaries[$name] = & $dictionary;
+	    return true;
+	  }
+	}
+
+	/**
+	 * If a dictionary name is specified, performs the lookup only in this one.
+	 * If the dictionary name is not in the perimeter of the current file,
+	 * bubbles up the translation request if a parent file exists.
+	 * Finally throws DictionaryNotFoundException if the dictionary name is not
+	 * found anywhere in the hierarchy.
+	 *
+	 * If the entry is not found in the current file's named dictionary,
+	 * throws DictionaryEntryNotFoundException.
+	 *
+	 * If no dictionary name parameter is specified, performs the lookup in every dictionary attached
+	 * to the current FIG file, and only if not found in any, bubbles up the request.
+	 *
+	 * @param $key
+	 * @param string $dictionaryName
+	 * @return string
+	 * @throws DictionaryEntryNotFoundException, DictionaryNotFoundException
+	 */
+	public function translate($key, $dictionaryName = null) {
+	  //If a dictionary name is specified,
+	  if(null !== $dictionaryName) {
+	    //and there is no dictionary by that name in the dictionaries attached to the current file,
+	    if((0 == count($this->dictionaries)) || (! array_key_exists($dictionaryName, $this->dictionaries)) ) {
+	      //if this file is root file (no parent), error!
+	      if(null == $this->parentFile) {
+	        throw new DictionaryNotFoundException($dictionaryName);
+	      }
+	      //otherwise, search the parent file's dictionaries for the dictionary with specified name.
+	      return $this->parentFile->translate($key, $dictionaryName);
+	    }
+	    //This will throw an exception if the entry is not found
+	    //in the current file's named dictionary, instead of searching parent's hierarchy for
+	    //dictionaries with the same name.
+	    return $this->dictionaries[$dictionaryName]->translate($key);
+	  }
+	
+	  //Walk the array of dictionaries, to try the lookup in all of them.
+	  if(count($this->dictionaries)) {
+	    foreach($this->dictionaries as $dictionary) {
+	      try {
+	        return $dictionary->translate($key);
+	      } catch(DictionaryEntryNotFoundException $ex) {
+	      }
+	    }
+	  }
+	  if(null == $this->parentFile) {
+	    throw new DictionaryEntryNotFoundException();
+	  }
+	  return $this->parentFile->translate($key, $dictionaryName);
 	}
 }

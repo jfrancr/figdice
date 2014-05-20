@@ -37,6 +37,11 @@ class TagFigAttr extends TagFig {
 	
 	public function render(Renderer $renderer) 
 	{
+	  
+	  if (! $this->checkFigCond($renderer))
+	    return '';
+
+	  
 	  $result = '';
 
 	  if ($this->hasAttribute('value')) {

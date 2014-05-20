@@ -184,7 +184,7 @@ class Tag extends Node
 	}
 	
 	
-	private function checkFigCond(Renderer $renderer)
+	protected function checkFigCond(Renderer $renderer)
 	{
 	  if (! $this->hasFigAttribute('cond'))
 	    return true;
@@ -218,12 +218,12 @@ class Tag extends Node
 	  
 	  
 	  
+	  //================================================================
+	  // fig:cond
 	  // Check if there is an unsatisfied fig:cond condition.
 	  if (! $this->checkFigCond($renderer)) {
 	    return null;
 	  }
-
-
 
 
 	  //================================================================

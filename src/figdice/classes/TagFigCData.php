@@ -42,6 +42,9 @@ class TagFigCData extends TagFig {
 
 	public function render(Renderer $renderer)
 	{
+	  if (! $this->checkFigCond($renderer))
+	    return '';
+
 	  $currentFilename = $renderer->getView()->getFilename();
 	  $requestedFilename = $this->getAttribute('file');
 	  
