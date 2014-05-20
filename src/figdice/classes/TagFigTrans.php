@@ -69,16 +69,16 @@ class TagFigTrans extends TagFig {
 	  $targetLanguage = $renderer->getRootView()->getLanguage();
 
     if($source == $targetLanguage) {
-	    $value = $this->renderChildren(true /*Do not render fig:param immediate children */);
+	    $value = $this->renderChildren($renderer);
     }
 	  
 	  else {
 	  //Cross-language dictionary mechanism:
 	  
 	    if(null == $key) {
-	    //Missing @key attribute : consider the text contents as the key.
+	      //Missing @key attribute : consider the text contents as the key.
 	      //throw new SyntaxErrorException($this->getCurrentFile()->getFilename(), $this->xmlLineNumber, $this->name, 'Missing @key attribute.');
-	      $key = $this->renderChildren();
+	      $key = $this->renderChildren($renderer);
 	    }
 	    //Ask current file to translate key:
 	    try {
@@ -154,4 +154,22 @@ class TagFigTrans extends TagFig {
 		return $value;
 
 	}
+
+	private function renderChildren(Renderer $renderer)
+	{
+	  $childrenAppender = '';
+	  if (count($this->children)) {
+	    foreach ($this->children as $child) {
+	      // Nothing to render for a fig:param, because we have already taken care of them
+	      // in the parent section.
+	      if ($child instanceof TagFigParam)
+	        continue;
+
+	      $childAppender = $child->render($renderer);
+	      $childrenAppender .= $childAppender;
+	    }
+	  }
+	  return $childrenAppender;
+	}
+	
 }

@@ -573,5 +573,5 @@ class Tag extends Node
 	  }
 	  
 	  return '';
-	}
+	}	
 }
