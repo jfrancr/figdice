@@ -172,13 +172,8 @@ class Tag extends Node
 	 * @param Renderer $renderer
 	 * @return boolean
 	 */
-	private function isMute(Renderer $renderer)
+	protected function isMute(Renderer $renderer)
 	{
-	  // A fig: tag is always mute.
-	  if ($this instanceof TagFig) {
-	    return true;
-	  }
-
 	  // For non-fig: tags, check the fig:mute property.
 	  return $this->isBooleanFigAttr('mute', $renderer);
 	}
@@ -330,6 +325,7 @@ class Tag extends Node
 	  // we will render its children, recursively.
 	  else if (count($this->children)) {
 	    
+	    $previousCDataSibling = null;
   	  foreach ($this->children as $child) {
 
   	    // Nothing to render for a fig:attr, because we have already taken care of them
@@ -337,8 +333,13 @@ class Tag extends Node
   	    if ($child instanceof TagFigAttr)
   	      continue;
 
+  	    if ($child instanceof Tag)
+    	    $child->setPreviousCDataSibling($previousCDataSibling);
+  	    
   	    $childAppender = $child->render($renderer);
  	      $childrenAppender .= $childAppender;
+ 	      
+ 	      $previousCDataSibling = ($child instanceof CData ? $child : null);
   	  }
 	  }
 	  
@@ -488,12 +489,43 @@ class Tag extends Node
     $renderer->pushIteration($newIteration);
   
     if(is_array($dataset) || (is_object($dataset) && ($dataset instanceof Iterable)) ) {
+      
+      //Keep track of the first round.
+      $bFirstIteration = true;
+
       foreach($dataset as $key => $data) {
         $renderer->getRootView()->pushStackData($data);
         $newIteration->iterate($key);
         $nextContent = $this->render($renderer);
-  
-  
+
+        //Each rendered iteration start again
+        //with the blank part on the right of the preceding CDATA,
+        //so that the proper indenting is kept, and carriage returns
+        //between each iteration, if applies.
+        //CAUTION: the property previousCDataSibling is optionally defined
+        //on the fly during a parent loop-on-children: is is not a persistable
+        //attribute of Tag objects.
+        if(! $bFirstIteration) {
+          if(isset($this->previousCDataSibling) && (null != $this->previousCDataSibling)) {
+            if(($rtrim = rtrim($this->previousCDataSibling->getText())) < $this->previousCDataSibling->getText()) {
+              $blankRPart = substr($this->previousCDataSibling->getText(), strlen($rtrim));
+              $precedingBlank = strrchr($blankRPart, "\n");
+              if($precedingBlank === false) {
+                $precedingBlank = $blankRPart;
+              }
+              $nextContent = $precedingBlank . $nextContent;
+              $bFirstIteration = false;
+            }
+          }
+        }
+        //But only do this for subsequent iterations, not the first one,
+        //since its preceding sibling was already rendered beforehand.
+        else {
+          $bFirstIteration = false;
+        }
+
+
+        
         $outputBuffer .= $nextContent;
         $renderer->getRootView()->popStackData();
       }
@@ -579,5 +611,12 @@ class Tag extends Node
 	  }
 	  
 	  return '';
-	}	
+	}
+
+	private function setPreviousCDataSibling(CData $previousSibling = null)
+	{
+	  //This property explicitly not defined as a member,
+	  //because I don't want it serialized.
+	  $this->previousCDataSibling = $previousSibling;
+	}
 }

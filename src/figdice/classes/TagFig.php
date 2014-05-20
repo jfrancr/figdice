@@ -24,4 +24,15 @@
 namespace figdice\classes;
 
 class TagFig extends Tag {
+  
+  /**
+   * @param Renderer $renderer
+   * @return boolean
+   */
+  protected function isMute(Renderer $renderer)
+  {
+    // A fig: tag is always mute.
+    return true;
+  }
+
 }
