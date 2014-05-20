@@ -317,7 +317,13 @@ class Tag extends Node
 		// fig:text
 		// The whole subtree is replaced with the specified expr.
 	  if ($this->hasText()) {
-	    $childrenAppender .= $renderer->evaluate($this->figAttributes['text'], $this);
+	    $textValue = $renderer->evaluate($this->figAttributes['text'], $this);
+	    //If we tried to resolve an XPath query, and we got a DOMNode,
+	    //use its inherent value instead of the object.
+	    if ($textValue instanceof \DOMNode) {
+	      $textValue = $textValue->nodeValue;
+	    }
+	    $childrenAppender .= $textValue;
 	  }
 	  
 	  // If the tag does not carry a fig:text directive,

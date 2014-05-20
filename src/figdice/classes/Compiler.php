@@ -76,6 +76,9 @@ class Compiler
     else if ($node->getName() == $this->figNamespace.TagFigTrans::TAGNAME) {
       $tag = new TagFigTrans($node->getLineNumber());
     }
+    else if ($node->getName() == $this->figNamespace.TagFigMount::TAGNAME) {
+      $tag = new TagFigMount($node->getLineNumber());
+    }
     else if ($this->checkNsPrefix($node->getName())) {
       $tag = new TagFig($this->stripNs($node->getName()), $node->getLineNumber());
     }
