@@ -451,29 +451,9 @@ class View {
 	    return $output;
 	  }
 	  
-	  
-	  
-	  
-	  
-		if(! $this->bParsed) {
-			$this->parse();
-		}
-
-		if (null != $this->parentViewElement) {
-			$this->rootNode->view = & $this->parentViewElement->view;
-		}
-
-		if (! $this->rootNode) {
-			throw new XMLParsingException('No template file loaded', '', 0);
-		}
-		$result = $this->rootNode->render();
-
-
-		if(! $this->parentViewElement) {
-			$result = $this->plugIntoSlots($result);
-		}
-
-		return $result;
+	  //At this stage, there should have been an exception already.
+	  //If not... my mistake :)
+	  throw new \Exception('Fig Compiler error in file: ' . $this->getFilename());
 	}
 
 	/**
@@ -779,7 +759,7 @@ class View {
 	}
 
 	/**
-	 * Called by the ViewElementTag::fig_feed method,
+	 * Called by the TagFigFeed class,
 	 * to instanciate a feed by its class name.
 	 *
 	 * @param string $classname
