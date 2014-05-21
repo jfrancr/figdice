@@ -342,7 +342,17 @@ class Tag extends Node
  	      $previousCDataSibling = ($child instanceof CData ? $child : null);
   	  }
 	  }
-	  
+
+		//================================================================
+		// fig:filter
+		// If the tag carries a fig:filter attribute, we will pass the
+		// subtree through the Filter (or the outcome of the fig:text
+		// attr, which in a way can be considered as the subtree of the tag).
+		if ($this->hasFigAttribute('filter')) {
+		  $filtername = $this->getFigAttribute('filter');
+  	  $childrenAppender = $renderer->applyOutputFilter($filtername, $childrenAppender, $this);
+		}
+	   
   
 	  
 	  // Now take care of the closing tag.
@@ -390,7 +400,7 @@ class Tag extends Node
 	    $renderer->plug($slotName, $appender, $renderer->evaluate($this->getFigAttribute('append'), $this));
 	    return null;
 	  }
-
+	  
 	  return $appender;
 	}
 	

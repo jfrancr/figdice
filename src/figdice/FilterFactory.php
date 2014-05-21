@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -25,11 +25,11 @@ namespace figdice;
 
 interface FilterFactory {
 	/**
-	 * Called by the ViewElementTag::applyOutputFilter method,
-	 * to instanciate a filter by its class name.
+	 * Called by the Renderer::applyOutputFilter method,
+	 * to instanciate a filter by its name.
 	 *
-	 * @param string $className
+	 * @param string $filterName
 	 * @return Filter
 	 */
-	public function & create($className);
+	public function create($filterName);
 }

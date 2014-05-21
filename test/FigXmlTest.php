@@ -25,6 +25,7 @@
 use figdice\View;
 use figdice\classes\File;
 use figdice\classes\ViewElementTag;
+use figdice\FilterFactory;
 
 
 /**
@@ -199,4 +200,60 @@ ENDXML;
 	  $this->view->loadString($source);
 	  $this->assertNull( $this->view->render() );
 	}
+
+	/**
+	 * @expectedException \figdice\exceptions\FilterNotFoundException
+	 */
+	public function testFilterNotFoundThrowsException()
+	{
+	  $source = <<<ENDXML
+<fig:xml>
+  <div fig:filter="TestFilter">
+    <a href="one.html">one</a>
+  </div>
+</fig:xml>
+ENDXML;
+	  $view = new View();
+	  $view->loadString($source);
+	  //Do not register a FilterFactory
+	  $output = $view->render();
+	   
+	  $this->assertTrue(false);
+	}
+	
+	public function testFilterFiltersProperly()
+	{
+	  $source = <<<ENDXML
+<fig:xml>
+  <div fig:filter="TestFilter">
+    <a href="one.html">one</a>
+  </div>
+</fig:xml>
+ENDXML;
+	  $view = new View();
+	  $view->loadString($source);
+	  $view->setFilterFactory(new MyTestFilterFactroy());
+	  $output = $view->render();
+	  
+	  $expected = <<<ENDHTML
+
+  <div>
+    <a href="two.html">two</a>
+  </div>
+
+ENDHTML;
+	  $this->assertEquals($expected, $output);
+	}
+}
+
+class MyTestFilterFactroy implements FilterFactory
+{
+  public function create($filtername)
+  {
+    if ($filtername == 'TestFilter') {
+      require_once dirname(__FILE__).'/resources/TestFilter.php';
+      return new TestFilter();
+    }
+    return null;
+  }
 }

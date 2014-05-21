@@ -25,6 +25,7 @@ namespace figdice\classes;
 
 use figdice\View;
 use figdice\classes\lexer\Lexer;
+use figdice\exceptions\FilterNotFoundException;
 
 class Renderer
 {
@@ -477,5 +478,28 @@ class Renderer
 	    throw new DictionaryEntryNotFoundException();
 	  }
 	  return $this->parentFile->translate($key, $dictionaryName);
+	}
+
+	/**
+	 * Applies a filter to the inner contents of an element.
+	 * Returns the filtered output.
+	 *
+	 * @param string $filtername The name of the filter to invoke
+	 * @param string $buffer the inner contents of the element, after rendering.
+	 * @return string
+	 */
+	public function applyOutputFilter($filtername, $content, Tag $tag)
+	{
+	  //TODO: Currently the filtering works only on non-slot tags.
+	  //If applied on a slot tag, the transform is made on the special placeholder /==SLOT=.../
+	  //rather than the future contents of the slot.
+	  
+	  $filter = $this->getRootView()->instanciateFilter($filtername);
+	  
+	  if (null == $filter) {
+	    throw new FilterNotFoundException($filtername, $this->getView()->getFilename(), $tag->getLineNumber());
+	  }
+	  
+	  return $filter->transform($content);
 	}
 }

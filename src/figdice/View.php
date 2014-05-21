@@ -27,6 +27,7 @@ use figdice\classes\NativeFunctionFactory;
 use figdice\classes\TagFigAttr;
 use figdice\classes\File;
 use figdice\classes\ViewElementTag;
+use figdice\classes\Tag;
 use figdice\classes\Renderer;
 use figdice\exceptions\FileNotFoundException;
 use figdice\exceptions\XMLParsingException;
@@ -37,6 +38,7 @@ use figdice\classes\XMLEntityTransformer;
 use figdice\classes\Slot;
 use figdice\classes\Compiler;
 use figdice\classes\CompiledView;
+use figdice\exceptions\FeedClassNotFoundException;
 
 /**
  * Main component of the FigDice library.
@@ -69,10 +71,10 @@ class View {
 	public $logger;
 
 	/**
-	 * The path where to find the output filters for the view.
-	 * @var string
+	 * Cache map of Filter instances, for name.
+	 * @var array < string=>Filter >
 	 */
-	private $filterPath;
+	private $filters = array();
 	/**
 	 * The directory where to store temporary files (results of compilation).
 	 * @var string
@@ -475,21 +477,6 @@ class View {
 		return $this->tempPath;
 	}
 	/**
-	 * @return string
-	 */
-	public function getFilterPath() {
-		return $this->filterPath;
-	}
-	/**
-	 * Specify the default location for all the filters
-	 * invoked by the view.
-	 *
-	 * @param string $path
-	 */
-	public function setFilterPath($path) {
-		$this->filterPath = $path;
-	}
-	/**
 	 * Returns the Filter Factory instance attachted to the view.
 	 *
 	 * @return FilterFactory
@@ -781,7 +768,28 @@ class View {
 			return null;
 		}
 	}
-  
+
+	/**
+	 * @param string $filtername
+	 * @return Filter
+	 */
+	public function instanciateFilter($filtername) {
+	  
+	  $filter = null;
+
+	  if (isset($this->filters[$filtername])) {
+	    $filter = $this->filters[$filtername];
+	  }
+	  else if ($this->filterFactory) {
+	    $filter = $this->filterFactory->create($filtername);
+	    if ($filter) {
+	      $this->filters[$filtername] = $filter;
+	    }
+	  }
+	  
+	  return $filter;
+	}
+
   public function compile()
   {
     $this->parse();
