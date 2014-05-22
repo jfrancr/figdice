@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.2
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -84,52 +84,6 @@ abstract class ViewElement {
 	}
 
 	/**
-	 * Indicates whether the XML element is to be rendered as self-closed (in case it has no content and is not muted).
-	 * Example:
-	 * <code>
-	 *   <br fig:auto="true" />
-	 * </code>
-	 * will ensure to render:
-	 * <code>
-	 *   <br />
-	 * </code>
-	 * instead of:
-	 * <code>
-	 *   <br></br>
-	 * </code>
-	 *
-	 * @return boolean
-	 */
-	public function getAutoClose() {
-		return $this->autoclose;
-	}
-
-	/**
-	 * Evaluate the XPath-like expression
-	 * on the data object associated to the view.
-	 *
-	 * @access private
-	 * @param string $expression
-	 * @return string
-	 */
-	public function evaluate($expression) {
-		if(is_numeric($expression)) {
-			$expression = (string)$expression;
-		}
-		if(! isset($this->view->lexers[$expression]) ) {
-			$lexer = new Lexer($expression);
-			$this->view->lexers[$expression] = & $lexer;
-			$lexer->parse($this);
-		}
-		else {
-			$lexer = & $this->view->lexers[$expression];
-		}
-
-		$result = $lexer->evaluate($this);
-		return $result;
-	}
-
-	/**
 	 * Returns the data structure
 	 * behind the specified name.
 	 * Looks first in the local variables,
@@ -150,14 +104,4 @@ abstract class ViewElement {
 	public function getLineNumber() {
 		return $this->xmlLineNumber;
 	}
-	/**
-	 * @return View
-	 */
-	public function &getView() {
-		return $this->view;
-	}
-	/**
-	 * @return string
-	 */
-	abstract protected function render();
 }

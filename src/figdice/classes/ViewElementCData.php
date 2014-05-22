@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -26,9 +26,6 @@ namespace figdice\classes;
 class ViewElementCData extends ViewElement {
 	public function __construct(&$view) {
 		parent::__construct($view);
-	}
-	public function render() {
-		return $this->outputBuffer;
 	}
 	public function appendCDataSibling($cdata) {
 		$this->outputBuffer .= $cdata;

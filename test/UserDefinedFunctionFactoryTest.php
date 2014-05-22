@@ -117,7 +117,7 @@ class UserDefinedFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 	public function testRegisteredCustomFunctionExecutes()
 	{
 		$viewElement = $this->prepareViewElement();
-		$view = $viewElement->getView();
+		$view = $this->view;
 
 		//Create an instance of our custom factory
 		$functionFactory = new CustomFunctionFactory();

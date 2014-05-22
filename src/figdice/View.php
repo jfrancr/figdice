@@ -520,7 +520,6 @@ class View {
 
 		$newElement = new ViewElementTag($view, $tagName, $lineNumber);
 
-		$newElement->setCurrentFile($this->file);
 		$newElement->setAttributes($attributes);
 
 
