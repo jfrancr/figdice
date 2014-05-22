@@ -834,39 +834,6 @@ class ViewElementTag extends ViewElement {
 		return $cdata;
 	}
 
-	/**
-	 * Creates a sub-view object, invokes its parsing phase,
-	 * and renders it as the child of the current tag.
-	 * @return string or false
-	 */
-	private function fig_include() {
-		//Extract from the attributes the file to include.
-		if (! $this->hasAttribute('file')) {
-		  throw new RequiredAttributeException($this->name,
-		    $this->getCurrentFilename(),
-		    $this->getLineNumber(), 
-		    'Missing required attribute: "file" in tag: "'. $this->name .'"' .
-		      ' in file: ' .$this->getCurrentFilename(). '(' .$this->getLineNumber(). ')');
-		}
-		$file = $this->attributes['file'];
-
-		//Create a sub-view, attached to the current element.
-		$view = new View();
-		$view->inherit($this);
-		$view->loadFile(dirname($this->getCurrentFilename()).'/'.$file, $this->getCurrentFile());
-
-		//Make the current node aware that it is being rendered
-		//as an include directive (therefore, it will be skipped
-		//when the subview tries to render it).
-		$this->bRendering = true;
-
-		//Parse the subview (build its own tree).
-		$view->parse();
-
-		$result = $view->render();
-		unset($this->bRendering);
-		return $result;
-	}
 
 
 	/**

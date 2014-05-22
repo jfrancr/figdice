@@ -262,21 +262,6 @@ class View {
 	public function getLanguage() {
 		return $this->language;
 	}
-	/**
-	 * When including a fig file, the included entity
-	 * is processed as a View in itself.
-	 * Yet, it is linked to the parent View.
-	 *
-	 * @param ViewElementTag $parentViewElement
-	 */
-	public function inherit(ViewElementTag &$parentViewElement) {
-		$this->parentViewElement = & $parentViewElement;
-		$this->callStackData = & $parentViewElement->view->callStackData;
-		$this->functionFactories = & $parentViewElement->view->functionFactories;
-		$this->feedFactories = & $parentViewElement->view->feedFactories;
-		$this->feedFactoryForClass = & $parentViewElement->view->feedFactoryForClass;
-		$this->replacements = $parentViewElement->view->replacements;
-	}
 
 	/**
 	 * Register a new Function Factory instance,
