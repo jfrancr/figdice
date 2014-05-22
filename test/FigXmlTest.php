@@ -244,6 +244,30 @@ ENDXML;
 ENDHTML;
 	  $this->assertEquals($expected, $output);
 	}
+
+
+	public function testCase()
+	{
+	  $source = <<<ENDXML
+<fig:xml>
+	<fig:case>
+    <fig:div1 fig:case="false">first</fig:div1>
+    <fig:div1 fig:case="true">
+	    <fig:div2 fig:case="1 == 2">second</fig:div2>
+	    <fig:div2 fig:case=" 13 == 13 ">second again</fig:div2>
+	    <fig:div2>always</fig:div2>
+	  </fig:div1>
+	  <fig:div1 fig:case="true">third</fig:div1>
+	</fig:case>
+</fig:xml>
+ENDXML;
+	  $view = new View();
+	  $view->loadString($source);
+	  $output = $view->render();
+	  $expected = "second again\n	    always";
+	  $this->assertEquals($expected, trim($output));
+	}
+	
 }
 
 class MyTestFilterFactroy implements FilterFactory

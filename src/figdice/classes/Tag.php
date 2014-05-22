@@ -179,21 +179,52 @@ class Tag extends Node
 	}
 	
 	
+	/**
+	 * Check if a fig:cond is satisfied, and if yes (or if there was no
+	 * fig:cond), check if a fig:case is satisfied.
+	 * @param Renderer $renderer
+	 * @return boolean
+	 */
 	protected function checkFigCond(Renderer $renderer)
 	{
-	  if (! $this->hasFigAttribute('cond'))
-	    return true;
+	  //Firstly, check fig:cond
+	  $condExpr = $this->getFigAttribute('cond');
+	  if ($condExpr) {
+	    //If there is one, it must be satisfied.
+	    if (! $renderer->evaluate($condExpr, $this)) {
+	      return false;
+	    }
+	  }
+
+	  //If there was a satisfied fig:cond, or no fig:cond,
+	  //we need to check fig:case.
 	  
-	  $expr = $this->getFigAttribute('cond');
-	  $bool = $renderer->evaluate($expr, $this);
+	  $caseExpr = $this->getFigAttribute('case');
+	  if ($caseExpr) {
+	    //Check if the parent tag is not already switched,
+	    //which means that another immediate child had @author gabriel
+      //fig:case satisfied
+      if (isset($this->parent->switched) && (true == $this->parent->switched)) {
+        return false;
+      }
+	    $satisfied = $renderer->evaluate($caseExpr, $this);
+      //If a prior sibling did not already satisfy a fig:case condition,
+      //but we do on this current tag,
+      //then we must notify the parent that it is "switched" as of now.
+      if ($satisfied) {
+        $this->parent->switched = true;
+        return true;
+      }
+      return false;
+	  }
 	  
-	  if ($bool)
-	    return true;
-	  return false;
+	  return true;
 	}
 
 	public function render(Renderer $renderer)
 	{
+	  //This flag indicates whether an immediate fig:case child has already been satisfied.
+	  $this->switched = false;
 	  
 	  $appender = '';
 	  
@@ -216,10 +247,10 @@ class Tag extends Node
 	  //================================================================
 	  // fig:cond
 	  // Check if there is an unsatisfied fig:cond condition.
+	  // In the same time, take care of the fig:case condition.
 	  if (! $this->checkFigCond($renderer)) {
 	    return null;
 	  }
-
 
 	  //================================================================
 	  // fig:macro
@@ -288,6 +319,7 @@ class Tag extends Node
   	  if (count($this->children)) {
   	    foreach ($this->children as $childNode) {
   	      if ($childNode instanceof TagFigAttr) {
+  	        $childNode->setParent($this);
   	        $value = $childNode->render($renderer);
   	        if (is_array($value)) {
   	          $value = implode('', $value);
@@ -333,8 +365,10 @@ class Tag extends Node
   	    if ($child instanceof TagFigAttr)
   	      continue;
 
-  	    if ($child instanceof Tag)
+  	    if ($child instanceof Tag) {
     	    $child->setPreviousCDataSibling($previousCDataSibling);
+  	      $child->setParent($this);
+  	    }
   	    
   	    $childAppender = $child->render($renderer);
  	      $childrenAppender .= $childAppender;
@@ -628,5 +662,10 @@ class Tag extends Node
 	  //This property explicitly not defined as a member,
 	  //because I don't want it serialized.
 	  $this->previousCDataSibling = $previousSibling;
+	}
+	
+	private function setParent(Tag $tag)
+	{
+	  $this->parent = $tag;
 	}
 }
