@@ -387,23 +387,9 @@ class View {
 			throw new XMLParsingException(
 					$errMsg,
 					($this->file ? $this->file->getFilename() : '(null)'),
-					$lineNumber);
+					$lineNumber
+			);
 		}
-		
-		
-		
-		
-		$compiler = new Compiler($this->figNamespace);
-		if (null == $this->rootNode) {
-		  $filename = $this->getFilename();
-		  throw new XMLParsingException('Failed to parse: '. $filename, $filename, 0);
-		}
-		$compiler->compile($this->rootNode);
-		
-		
-		
-		
-		
 	}
 
 	/**
@@ -411,7 +397,7 @@ class View {
 	 * using the data universe.
 	 *
 	 * @return string
-	 * @throws RenderingException
+	 * @throws RenderingException, XMLParsingException
 	 */
 	public function render()
 	{
@@ -423,24 +409,20 @@ class View {
 	 * using the data universe.
 	 *
 	 * @return string
-	 * @throws RenderingException
+	 * @throws RenderingException, XMLParsingException
 	 */
 	public function renderSubview(Renderer $parentRenderer = null)
 	{
 	  
 	  if (! $this->compiledView) {
+	    // This will throw an exception upon failure.
 	    $this->compiledView = $this->compile();
 	  }
 	  
-	  if ($this->compiledView) {
- 	    $renderer = new Renderer($this->figNamespace, $parentRenderer);
-	    $output = $renderer->render($this);
-	    return $output;
-	  }
-	  
-	  //At this stage, there should have been an exception already.
-	  //If not... my mistake :)
-	  throw new \Exception('Fig Compiler error in file: ' . $this->getFilename());
+	  // $this->compiledView cannot be null here. There would have been an exception.
+    $renderer = new Renderer($this->figNamespace, $parentRenderer);
+    $output = $renderer->render($this);
+    return $output;	  
 	}
 
 	/**
@@ -564,32 +546,23 @@ class View {
 				return;
 			}
 			$element->autoclose = false;
-			//Find the opening bracket < of the closing tag:
-			//$latestOpeningBracket = strrpos(substr($this->source, 0, $pos + $this->firstTagOffset+1), '<');
-			//Very risky. Work with libxml 2.6.26 on Windows XP Pro 32bit.
-			//Unsure for any other platform...
-			//TODO: Anyway it works only for top-level fig file. Not for included files, it seems.
-			//if(!preg_match('#^<[^>]+/>#', substr($this->source, $latestOpeningBracket))) {
-			//	$element->autoclose = false;
-			//}
 		}
 	}
 
 	/**
 	 * XML parser handler for CDATA
 	 *
-	 * @access private
 	 * @param XML_resource $xmlParser
 	 * @param string $cdata
 	 */
-	function cdataHandler($xmlParser, $cdata) {
+	private function cdataHandler($xmlParser, $cdata) {
 		//Last element in stack = parent element of the CDATA.
 		$currentElement = &$this->stack[count($this->stack)-1];
 		$currentElement->appendCDataChild($cdata);
 	}
 
 
-	function errorMessage($errorMessage) {
+	private function errorMessage($errorMessage) {
 		$lineNumber = xml_get_current_line_number($this->xmlParser);
 		$filename = ($this->file) ? $this->file->getFilename() : '(null)';
 		$this->logger->error("$filename($lineNumber): $errorMessage");
@@ -774,6 +747,10 @@ class View {
 	  return $filter;
 	}
 
+	/**
+	 * @throws XMLParsingException
+	 * @return CompiledView
+	 */
   public function compile()
   {
     $this->parse();

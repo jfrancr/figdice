@@ -50,11 +50,15 @@ class TagFigInclude extends TagFig {
 	  $dirname = dirname($currentFilename) | '.';
 	  $fqname = dirname($currentFilename).'/'.$requestedFilename;
 
+	  // An included file will be represented in our model
+	  // by a new View object, with its own filename.
+	  // However, it will be bound to a parent View,
+	  // and all the Render stuff related to Plugs,
+	  // Slots, Universe, Functions, etc. will operate
+	  // on the topmost View.
 	  $view = new View();
 	  $view->loadFile($fqname);
 
-	  // TODO: pass reference to data provider, so that Universe is shared,
-	  //    and must take care of plugs, macros etc.
 	  return $view->renderSubview($renderer);
 	}
 	
