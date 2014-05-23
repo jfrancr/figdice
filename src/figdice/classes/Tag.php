@@ -358,8 +358,18 @@ class Tag extends Node
 	  else if (count($this->children)) {
 	    
 	    $previousCDataSibling = null;
+	    $bFirstChild = true;
   	  foreach ($this->children as $child) {
 
+  	    if ($bFirstChild) {
+  	      $bFirstChild = false;
+  	      //A mute tag that does not have any content rendered yet, should not output the consecutive blank cdata.
+    	    if (($this->isMute($renderer)) && ($child instanceof CData) && ('' == $appender)) {
+    	      $childrenAppender = ltrim($child->render($renderer));
+    	      continue;
+    	    }
+  	    }
+  	    
   	    // Nothing to render for a fig:attr, because we have already taken care of them
   	    // in the attributes section.
   	    if ($child instanceof TagFigAttr)

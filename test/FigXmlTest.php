@@ -113,7 +113,7 @@ ENDHTML;
 ENDXML;
 		$this->view->loadString($source);
 		$this->view->mount('data', array('a', 'b', 'c'));
-		$this->assertEquals("\n  a\n\n  b\n\n  c\n", $this->view->render());
+		$this->assertEquals("a\nb\nc", trim($this->view->render()));
 	}
 
 	public function testCompactWalkWithIndexedArrayAndText() {
@@ -236,8 +236,7 @@ ENDXML;
 	  $output = $view->render();
 	  
 	  $expected = <<<ENDHTML
-
-  <div>
+<div>
     <a href="two.html">two</a>
   </div>
 
