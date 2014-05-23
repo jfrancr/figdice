@@ -133,20 +133,6 @@ class View {
 	 */
 	private $xmlParser;
 
-	/**
-	 * When this View is not created directly by the user
-	 * (ie when it is a sub-view of another view, invoked
-	 * by the fig:include directive), this variable refers
-	 * to the fig:include ViewElementTag of the parent view.
-	 *
-	 * Every ViewElement created subsequently during the
-	 * parsing phase of this View, is attached to the caller view,
-	 * so as to inject the parsed elements directly into the tree
-	 * of the caller view.
-	 * @var ViewElementTag
-	 */
-	public $parentViewElement;
-
 
 	/**
 	 * The array of named slots defined in the view.
@@ -236,7 +222,6 @@ class View {
 		$this->rootNode = null;
 		$this->stack = array();
 		$this->logger = LoggerFactory::getLogger(get_class($this));
-		$this->parentViewElement = null;
 		$this->lexers = array();
 		$this->callStackData = array(array());
 		$this->functionFactories = array(new NativeFunctionFactory());
@@ -493,23 +478,10 @@ class View {
 		$pos = xml_get_current_byte_index($xmlParser);
 		$lineNumber = xml_get_current_line_number($xmlParser);
 
-		if($this->parentViewElement) {
-			$view = &$this->parentViewElement->view;
-		}
-		else {
-			$view = &$this;
-		}
-
-		$newElement = new ViewElementTag($view, $tagName, $lineNumber);
+		$newElement = new ViewElementTag($this, $tagName, $lineNumber);
 
 		$newElement->setAttributes($attributes);
 
-
-		if( ($this->rootNode === null) && $this->parentViewElement )
-		{
-			$this->rootNode = &$this->parentViewElement;
-			$this->stack[] = &$this->parentViewElement;
-		}
 
 		if($this->rootNode) {
 			$parentElement = & $this->stack[count($this->stack)-1];
