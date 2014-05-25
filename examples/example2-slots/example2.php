@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.3
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -52,7 +52,7 @@ $view->setTempPath(dirname(__FILE__));
 try {
 	$view->loadFile(dirname(__FILE__).'/template-inner.xml');
 } catch (FileNotFoundException $ex) {
-	die('template file not found');
+	die('template file not found' . PHP_EOL);
 }
 
 // Mount some data into our View
@@ -65,7 +65,7 @@ try {
 	$output = $view->render();
 } catch (FileNotFoundException $ex) {
 	die('some include went wrong at rendering-time: ' . PHP_EOL 
-			. $ex->getMessage());
+			. $ex->getMessage() . PHP_EOL);
 }
 
 echo $output;

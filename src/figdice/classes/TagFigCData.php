@@ -24,6 +24,7 @@
 namespace figdice\classes;
 
 use figdice\exceptions\RequiredAttributeException;
+use figdice\exceptions\FileNotFoundException;
 
 class TagFigCData extends TagFig {
 	const TAGNAME = 'cdata';
@@ -36,7 +37,7 @@ class TagFigCData extends TagFig {
 	{
 	  // "file" attribute is mandatory.
 	  if (! $this->hasAttribute('file')) {
-	    throw new Exception('TODO: MISSING ATTRIBUTE');
+	    throw new \Exception('TODO: MISSING ATTRIBUTE');
 	  }
 	}
 
@@ -50,6 +51,9 @@ class TagFigCData extends TagFig {
 	  
 	  $dirname = dirname($currentFilename) | '.';
 	  $fqname = dirname($currentFilename).'/'.$requestedFilename;
+	  if (! file_exists($fqname)) {
+	    throw new FileNotFoundException('Missing file imported with :cdata tag: ' . $fqname, $fqname);
+	  }
 	  $fileContents = file_get_contents($fqname);
 	  
 	  return $fileContents;

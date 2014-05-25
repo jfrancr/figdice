@@ -18,6 +18,6 @@
 		 above.
 		 This is no contradiction in FigDice: thanks to the Plug/Slot mechanism
 		 the templates do not need to be loaded/writted in a linear way. -->
-<fig:include file="template-page-generic.xml" />
+<fig:include file="subfolder/template-page-generic.xml" />
 
 </fig:template>
