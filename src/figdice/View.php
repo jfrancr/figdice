@@ -416,13 +416,16 @@ class View {
 	private function loadCompiled($compiledFilename)
 	{
 	  $compiledBinary = file_get_contents($compiledFilename);
-	  $this->compiledView = unserialize(gzuncompress($compiledBinary));
+	  $this->compiledView = unserialize($compiledBinary);
 	}
 	public function saveCompiled()
 	{
-	  $compiledBinary = gzcompress(serialize($this->compiledView), 9);
+	  if (! $this->tempPath)
+	    return;
+
+	  $compiledBinary = serialize($this->compiledView);
 	  $compiledFilename = $this->makeCompiledFilename($this->filename . '.fig');
-	  $fp = fopen($compiledFilename, 'w');
+	  $fp = fopen($this->tempPath . '/' . $compiledFilename, 'w');
 	  if ($fp) {
 	    fwrite($fp, $compiledBinary);
 	    fclose($fp);
