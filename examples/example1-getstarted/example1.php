@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.3
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -79,6 +79,11 @@ class MyUser {
 
 $view->mount('userDetails', new MyUser('Mr', 'Gabriel') );
 
+
+// Tell the View where we want to save the compiled templates
+// (optional: JIT compiled code will not be saved for
+// reuse if not specified).
+$view->setTempPath(dirname(__FILE__));
 
 // Render the template!
 try {

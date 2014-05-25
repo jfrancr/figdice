@@ -41,6 +41,7 @@ use \figdice\exceptions\FileNotFoundException;
 
 // Create a Fig View object
 $view = new View();
+$view->setTempPath(dirname(__FILE__));
 
 // This time we do not load the outer page:
 // rather, our template's "entry-point" is going to be an inner block.
