@@ -57,6 +57,8 @@ class TagFigInclude extends TagFig {
 	  // Slots, Universe, Functions, etc. will operate
 	  // on the topmost View.
 	  $view = new View();
+	  // Compiled target folder is taken from parent view.
+	  $view->setTempPath($renderer->getView()->getTempPath());
 	  $view->loadFile($fqname);
 
 	  return $view->renderSubview($renderer);

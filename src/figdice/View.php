@@ -226,6 +226,7 @@ class View {
 		$this->callStackData = array(array());
 		$this->functionFactories = array(new NativeFunctionFactory());
 		$this->language = null;
+		$this->compiledView = null;
 	}
 
 	/**
@@ -280,9 +281,27 @@ class View {
 	 * @param string $filename
 	 * @throws FileNotFoundException
 	 */
-	public function loadFile($filename, File $parent = null) {
-		$this->file = new File($filename, $parent);
+	public function loadFile($filename) {
+	  $this->compiledView = null;
+		$this->file = new File($filename);
 
+		// First, let's check if there is a Temp Path
+		// in which we could find the compiled view.
+		if ($this->tempPath) {
+		  $flatFilename = $this->makeCompiledFilename($filename);
+		  $compiledFilename = $this->tempPath . '/' . $flatFilename . '.fig';
+		  // If there is a compiled file, and either no source file
+		  if ( file_exists($compiledFilename) ) {
+		    // or a source file which is older than the compiled version,
+		    if ( (! file_exists($filename) ) || (filemtime($filename) < filemtime($compiledFilename))) {
+		      // load the compiled version!
+		      $this->loadCompiled($compiledFilename);
+		      return;
+		    }
+		  }
+		}
+		
+		
 		if(file_exists($filename)) {
 			$this->source = file_get_contents($filename);
 		}
@@ -293,6 +312,13 @@ class View {
 		}
 	}
 
+	public function makeCompiledFilename($filename)
+	{
+	  return str_replace('/', '__', 
+	    str_replace('\\', '__', $filename)
+	  );
+	} 
+
 	/**
 	 * Instead of loading a file, you can load a string, and optionally pass
 	 * a "working directory" (mainly useful for incldues).
@@ -301,6 +327,7 @@ class View {
 	 * @param string $string
 	 */
 	public function loadString($string, $workingDirectory = null) {
+	  $this->compiledView = null;
 	  $this->file = new File($workingDirectory . '/(null)');
 	  $this->source = $string;
 	}
@@ -388,7 +415,23 @@ class View {
 	{
 	  return $this->renderSubview();
 	}
-	
+
+	private function loadCompiled($compiledFilename)
+	{
+	  $compiledBinary = file_get_contents($compiledFilename);
+	  $this->compiledView = unserialize(gzuncompress($compiledBinary));
+	}
+	public function saveCompiled()
+	{
+	  $compiledBinary = gzcompress(serialize($this->compiledView), 9);
+	  $compiledFilename = $this->makeCompiledFilename($this->file->getFilename() . '.fig');
+	  $fp = fopen($compiledFilename, 'w');
+	  if ($fp) {
+	    fwrite($fp, $compiledBinary);
+	    fclose($fp);
+	  }
+	}
+
 	/**
 	 * Process parsed source and render view,
 	 * using the data universe.
@@ -401,9 +444,14 @@ class View {
 	  
 	  if (! $this->compiledView) {
 	    // This will throw an exception upon failure.
-	    $this->compiledView = $this->compile();
+	    $this->compile();
+	    // If an output directory is specified for the
+	    // compiler, let's try to store the binary.
+	    if($this->tempPath && $this->file) {
+  	    $this->saveCompiled();
+	    }
 	  }
-	  
+
 	  // $this->compiledView cannot be null here. There would have been an exception.
     $renderer = new Renderer($this->figNamespace, $parentRenderer);
     $output = $renderer->render($this);
@@ -725,6 +773,10 @@ class View {
 	 */
   public function compile()
   {
+    if ($this->compiledView) {
+      return $this->compiledView;
+    }
+
     $this->parse();
     $compiler = new Compiler($this->figNamespace);
     if (null == $this->rootNode) {
