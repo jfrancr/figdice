@@ -114,12 +114,12 @@ abstract class DFAState {
 	 */
 	protected function throwError($lexer, $char) {
 		$message = 'Unexpected char: ' . $char;
-		$message = get_class($this) . ': file: ' . $lexer->getViewFile()->getFilename() . '(' . $lexer->getViewLine() . '): ' . $message . ' in expression: ' . $lexer->getExpression();
+		$message = get_class($this) . ': file: ' . $lexer->getViewFile() . '(' . $lexer->getViewLine() . '): ' . $message . ' in expression: ' . $lexer->getExpression();
 		if(! $this->logger) {
 			$this->logger = LoggerFactory::getLogger(get_class($this));
 		}
 		$this->logger->error($message);
-		throw new LexerUnexpectedCharException($message, $lexer->getViewFile()->getFilename(), $lexer->getViewLine());
+		throw new LexerUnexpectedCharException($message, $lexer->getViewFile(), $lexer->getViewLine());
 	}
 
 	/**
@@ -127,11 +127,11 @@ abstract class DFAState {
 	 * @param string $message
 	 */
 	protected function throwErrorWithMessage($lexer, $message) {
-		$message = get_class($this) . ': file: ' . $lexer->getViewFile()->getFilename() . '(' . $lexer->getViewLine() . '): ' . $message . ' in expression: ' . $lexer->getExpression();
+		$message = get_class($this) . ': file: ' . $lexer->getViewFile() . '(' . $lexer->getViewLine() . '): ' . $message . ' in expression: ' . $lexer->getExpression();
 		if(! $this->logger) {
 			$this->logger = LoggerFactory::getLogger(get_class($this));
 		}
 		$this->logger->error($message);
-		throw new LexerUnexpectedCharException($message, $lexer->getViewFile()->getFilename(), $lexer->getViewLine());
+		throw new LexerUnexpectedCharException($message, $lexer->getViewFile(), $lexer->getViewLine());
 	}
 }

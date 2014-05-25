@@ -22,8 +22,7 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenSymbol extends Token {
 	/**
@@ -39,9 +38,9 @@ class TokenSymbol extends Token {
 		$this->name = $name;
 	}
 
-	public function evaluate(Tag $tag, Renderer $renderer)
+	public function evaluate(Anchor $anchor)
 	{
 		$tokenPath = new TokenPath($this->name);
-		return $tokenPath->evaluate($tag, $renderer);
+		return $tokenPath->evaluate($anchor);
 	 }
 }

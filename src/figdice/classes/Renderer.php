@@ -151,16 +151,20 @@ class Renderer
 		if(is_numeric($expression)) {
 			$expression = (string)$expression;
 		}
+
+		$anchor = new Anchor($this, $this->getView()->getFilename(), $tag->getLineNumber());
 		if(! isset($this->view->lexers[$expression]) ) {
 			$lexer = new Lexer($expression);
 			$this->view->lexers[$expression] = & $lexer;
-			$lexer->parse($this);
+			$lexer->parse($anchor);
 		}
 		else {
+		  //TODO: centralize the instances of Lexer at RootView level.
+		  //TODO: also pre-compile the expressions and save them in the View's compiled binary.
 			$lexer = & $this->view->lexers[$expression];
 		}
 
-		$result = $lexer->evaluate($this, $tag);
+		$result = $lexer->evaluate($anchor);
 		return $result;
 	}
 

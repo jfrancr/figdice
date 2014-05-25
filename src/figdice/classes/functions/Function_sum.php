@@ -24,18 +24,16 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 use \figdice\LoggerFactory;
 
 class Function_sum implements FigFunction {
 	/**
-	 * @param Tag $viewElement
-	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
+	 * @param Anchor $anchor
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+	public function evaluate($arity, $arguments, Anchor $anchor) {
 		$collection = $arguments[0];
 		$sum = 0;
 		if(is_array($collection)) {

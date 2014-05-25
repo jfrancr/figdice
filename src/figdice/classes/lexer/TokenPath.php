@@ -23,8 +23,7 @@
 
 namespace figdice\classes\lexer;
 
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenPath extends Token {
 	/**
@@ -51,11 +50,10 @@ class TokenPath extends Token {
 	}
 	
 	/**
-	 * @param Tag $tag
-	 * @param Renderer $renderer
+	 * @param Anchor $anchor
 	 * @return mixed
 	 */
-	public function evaluate(Tag $tag, Renderer $renderer) {
+	public function evaluate(Anchor $anchor) {
 	  
 	  if(0 == ($count = count($this->path))) {
 	    return null;
@@ -66,7 +64,7 @@ class TokenPath extends Token {
 	  for($i = 0; $i < $count; ++$i) {
 	
 	    if($this->path[$i] instanceof Token) {
-	      $symbolName = $this->path[$i]->evaluate($tag, $renderer);
+	      $symbolName = $this->path[$i]->evaluate($anchor);
 	    }
 	    else if($this->path[$i] instanceof PathElementRoot) {
 	      $symbolName = '/';
@@ -85,7 +83,7 @@ class TokenPath extends Token {
 	    //anchor the path research to the point of the universe
 	    //which the first-level path element refers to.
 	    if($data === null) {
-	      $data = $renderer->getData($symbolName);
+	      $data = $anchor->getRenderer()->getData($symbolName);
 	      if( $data === null )
 	        break;
 	    }

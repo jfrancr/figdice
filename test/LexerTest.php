@@ -24,8 +24,7 @@
 use figdice\classes\lexer\Lexer;
 use figdice\exceptions\LexerUnexpectedCharException;
 use figdice\View;
-use figdice\classes\File;
-use figdice\classes\ViewElementTag;
+use figdice\classes\Anchor;
 
 /**
  * Unit Test Class for basic Lexer expressions
@@ -41,24 +40,20 @@ class LexerTest extends PHPUnit_Framework_TestCase {
 		// which must respond to the getCurrentFile method.
 
 		$view = $this->getMock('\\figdice\\View');
-		$viewFile = $this->getMock('\\figdice\\classes\\File', null, array('PHPUnit'));
-		$viewElement = $this->getMock('\\figdice\\classes\\ViewElementTag', array('getCurrentFile'), array(& $view, 'testtag', 12));
-		$viewElement->expects($this->any())
-			->method('getCurrentFile')
-			->will($this->returnValue($viewFile));
-
-		// Make sure that the passed expression is successfully parsed,
-		// before asserting stuff on its evaluation.
-		$parseResult = $lexer->parse($viewElement);
-		$this->assertTrue($parseResult, 'parsed expression: ' . $lexer->getExpression());
 
 		$renderer = $this->getMock('\\figdice\\classes\\Renderer');
 		$renderer->expects($this->any())
 		         ->method('getRootView')
 		         ->will($this->returnValue($view));
 
-		$tag = $this->getMockBuilder('\\figdice\\classes\\Tag')->disableOriginalConstructor()->getMock();
-		return $lexer->evaluate($renderer, $tag);
+		$anchor = new Anchor($renderer, __FILE__, __LINE__);
+		
+		// Make sure that the passed expression is successfully parsed,
+		// before asserting stuff on its evaluation.
+		$parseResult = $lexer->parse($anchor);
+		$this->assertTrue($parseResult, 'parsed expression: ' . $lexer->getExpression());
+
+		return $lexer->evaluate($anchor);
 	}
 
 

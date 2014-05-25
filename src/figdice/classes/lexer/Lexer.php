@@ -28,8 +28,7 @@ use \figdice\exceptions\LexerUnexpectedCharException;
 use \figdice\exceptions\LexerSyntaxErrorException;
 use \figdice\exceptions\LexerUnbalancedParenthesesException;
 use \figdice\LoggerFactory;
-use figdice\classes\Renderer;
-use figdice\classes\Tag;
+use \figdice\classes\Anchor;
 use Psr\Log\LoggerInterface;
 
 class Lexer {
@@ -39,14 +38,14 @@ class Lexer {
 	private $logger;
 
 	/**
-	 * @var ViewElementTag
-	 */
-	private $viewElement;
-
-	/**
 	 * @var string
 	 */
 	private $expression;
+
+	/**
+	 * @var Anchor
+	 */
+	private $anchor;
 
 	/**
 	 * @var DFAState
@@ -151,8 +150,9 @@ class Lexer {
 	 * @param Tag $viewElement
 	 * @return boolean
 	 */
-	public function parse($viewElement) {
-		$this->viewElement = $viewElement;
+	public function parse(Anchor $anchor) {
+	  
+	  $this->anchor = $anchor;
 
 		//Interpret an empty expression as boolean false.
 		if(trim($this->expression == '')) {
@@ -184,7 +184,7 @@ class Lexer {
 		}
 		catch (Exception $exception) {
 			$errorMsg = "Unexpected character: $char at position: {$this->parsingPosition} in expression: {$this->expression}.";
-			$message = $this->getViewFile()->getFilename() . '(' . $this->getViewLine() . '): ' . $errorMsg ;
+			$message = $this->getViewFile() . '(' . $this->getViewLine() . '): ' . $errorMsg ;
 			$this->getLogger()->error($message);
 			throw new LexerUnexpectedCharException($errorMsg, $this->getViewFile()->getFilename(), $this->getViewLine());
 		}
@@ -194,10 +194,10 @@ class Lexer {
 				(count($this->stackRP) != 1)
 			)
 		{
-			$message = $this->getViewFile()->getFilename() . '(' . $this->getViewLine() . '): Syntax error in expression: ' . $this->expression;
+			$message = $this->getViewFile() . '(' . $this->getViewLine() . '): Syntax error in expression: ' . $this->expression;
 			$this->getLogger()->error($message);
 			throw new LexerSyntaxErrorException($message,
-					$this->getViewFile()->getFilename(),
+					$this->getViewFile(),
 					$this->getViewLine());
 		}
 
@@ -206,10 +206,10 @@ class Lexer {
 		    (! $this->stackRP[0]->isClosed())
 		)
 		{
-		  $message = $this->getViewFile()->getFilename() . '(' . $this->getViewLine() . '): Unbalanced parentheses in expression: ' . $this->expression;
+		  $message = $this->getViewFile() . '(' . $this->getViewLine() . '): Unbalanced parentheses in expression: ' . $this->expression;
 		  $this->getLogger()->error($message);
 		  throw new LexerUnbalancedParenthesesException($message,
-		    $this->getViewFile()->getFilename(),
+		    $this->getViewFile(),
 		    $this->getViewLine());
 		}
 
@@ -433,13 +433,12 @@ class Lexer {
 	}
 
 	/**
-	 * @param Renderer $renderer
-	 * @param Tag $tag
+	 * @param Anchor $anchor
 	 * @return mixed
 	 */
-	public function evaluate(Renderer $renderer, Tag $tag) {
-	  $this->tag = $tag;
-	  return $this->stackRP[0]->evaluate($this->tag, $renderer);
+	public function evaluate(Anchor $anchor) {
+	  $this->anchor = $anchor;
+	  return $this->stackRP[0]->evaluate($anchor);
 	}
 	
 	/**
@@ -450,15 +449,15 @@ class Lexer {
 	}
 
 	/**
-	 * Returns the file containing the current
+	 * Returns the filename containing the current
 	 * expression to evaluate.
 	 *
-	 * @return File
+	 * @return string
 	 */
 	public function getViewFile() {
-		return $this->viewElement->getCurrentFile();
+		return $this->anchor->getFilename();
 	}
 	public function getViewLine() {
-		return $this->viewElement->getLineNumber();
+		return $this->anchor->getLineNumber();
 	}
 }

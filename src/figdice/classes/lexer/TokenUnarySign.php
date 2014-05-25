@@ -23,8 +23,7 @@
 
 namespace figdice\classes\lexer;
 
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenUnarySign extends TokenOperator {
 	/**
@@ -45,12 +44,12 @@ class TokenUnarySign extends TokenOperator {
 	}
 
 	/**
-	 * @param ViewElement $viewElement
+	 * @param Anchor $anchor
 	 * @return mixed
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer) {
+	public function evaluate(Anchor $anchor) {
 		if($this->sign == '-')
-			return (- $this->operands[0]->evaluate($viewElement, $renderer));
-		return $this->operands[0]->evaluate($viewElement, $renderer);
+			return (- $this->operands[0]->evaluate($anchor));
+		return $this->operands[0]->evaluate($anchor);
 	}
 }

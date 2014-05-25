@@ -22,8 +22,7 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenNot extends TokenOperator {
 	/**
@@ -37,9 +36,9 @@ class TokenNot extends TokenOperator {
 		return 1;
 	}
 
-	public function evaluate(Tag $tag, Renderer $renderer)
+	public function evaluate(Anchor $anchor)
 	{
-		$operand = $this->operands[0]->evaluate($tag, $renderer);
+		$operand = $this->operands[0]->evaluate($anchor);
 		return ! $operand;
 	}
 	

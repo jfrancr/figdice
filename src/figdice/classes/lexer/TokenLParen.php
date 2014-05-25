@@ -23,8 +23,7 @@
 
 namespace figdice\classes\lexer;
 
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenLParen extends TokenOperator {
 	public function __construct() {
@@ -39,10 +38,10 @@ class TokenLParen extends TokenOperator {
 	}
 
 	/**
-	 * @param ViewElement $viewElement
+	 * @param Anchor $anchor
 	 * @return mixed
 	 */
-	public function evaluate(Tag $tag, Renderer $renderer) {
+	public function evaluate(Anchor $anchor) {
 		throw new \Exception('Abnormal evaluation of left parenthesis token.');
 	}
 }

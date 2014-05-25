@@ -21,23 +21,51 @@
  * along with FigDice.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace figdice\classes\functions;
+namespace figdice\classes;
 
-use \figdice\FigFunction;
-use \figdice\classes\Anchor;
-use \figdice\LoggerFactory;
+use figdice\classes\Renderer;
 
-class Function_php implements FigFunction {
+class Anchor
+{
+  /**
+   * @var string
+   */
+  private $filename;
+  /**
+   * @var integer
+   */
+  private $linenumber;
+  /**
+   * @var Renderer
+   */
+  private $renderer;
 
-	public function evaluate($arity, $arguments, Anchor $anchor) {
-		$funcName = array_shift($arguments);
-		if(! function_exists($funcName)) {
-			$logger = LoggerFactory::getLogger(get_class($this));
-			$logger->error('Invalid PHP function: ' . $funcName);
-			$this->error = true;
-			return false;
-		}
+  public function __construct(Renderer $renderer = null, $filename = null, $linenumber = null)
+  {
+    $this->filename = $filename;
+    $this->linenumber = $linenumber;
+    $this->renderer = $renderer;
+  }
+  /**
+   * @return Renderer
+   */
+  public function getRenderer()
+  {
+    return $this->renderer;
+  }
 
-		return call_user_func_array($funcName, $arguments);
-	}
+  /**
+   * @return string
+   */
+  public function getFilename()
+  {
+    return $this->filename;
+  }
+  /**
+   * @return integer
+   */
+  public function getLineNumber()
+  {
+    return $this->linenumber;
+  }
 }

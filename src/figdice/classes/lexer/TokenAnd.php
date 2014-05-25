@@ -23,8 +23,7 @@
 
 namespace figdice\classes\lexer;
 
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenAnd extends TokenBinop {
 	public function __construct() {
@@ -32,15 +31,14 @@ class TokenAnd extends TokenBinop {
 	}
 
 	/**
-	 * @param Tag $viewElement
-	 * @param Renderer $renderer
+	 * @param Anchor $anchor
 	 * @return mixed
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer) {
+	public function evaluate(Anchor $anchor) {
 		$opL = $this->operands[0];
-		if(true == $opL->evaluate($viewElement, $renderer)) {
+		if(true == $opL->evaluate($anchor)) {
 			$opR = $this->operands[1];
-			return (true == $opR->evaluate($viewElement, $renderer));
+			return (true == $opR->evaluate($anchor));
 		}
 		return false;
 	}

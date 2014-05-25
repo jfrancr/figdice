@@ -22,8 +22,7 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 use \figdice\exceptions\LexerArrayToStringConversionException;
 
 
@@ -37,9 +36,9 @@ class TokenComparisonBinop extends TokenBinop {
 		parent::__construct(self::PRIORITY_COMPARATOR);
 		$this->comparator = $comparator;
 	}
-	public function evaluate(Tag $viewElement, Renderer $renderer) {
-		$opL = $this->operands[0]->evaluate($viewElement, $renderer);
-		$opR = $this->operands[1]->evaluate($viewElement, $renderer);
+	public function evaluate(Anchor $anchor) {
+		$opL = $this->operands[0]->evaluate($anchor);
+		$opR = $this->operands[1]->evaluate($anchor);
 
 		switch($this->comparator) {
 			case 'gt' : return ($opL >  $opR);
@@ -64,7 +63,7 @@ class TokenComparisonBinop extends TokenBinop {
 						//to perform the comparison, so we throw an error.
 						
 						throw new LexerArrayToStringConversionException('Array to string conversion exception in file: ' . 
-						  $renderer->getView()->getFilename() . '('.$viewElement->getLineNumber().')');
+						  $anchor->getFilename() . '('.$anchor->getLineNumber().')');
 					}
 					else {
 						return (0 === strcmp($opL, $opR));

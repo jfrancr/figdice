@@ -24,8 +24,7 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 use \figdice\LoggerFactory;
 
 class Function_last implements FigFunction {
@@ -33,12 +32,12 @@ class Function_last implements FigFunction {
 	}
 
 	/**
-	 * @param ViewElement $viewElement
 	 * @param integer $arity
 	 * @param array $arguments
+	 * @param Anchor $anchor
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
-		$iteration = $renderer->getIteration();
+	public function evaluate($arity, $arguments, Anchor $anchor) {
+		$iteration = $anchor->getRenderer()->getIteration();
 		return $iteration->last();
 	}
 }

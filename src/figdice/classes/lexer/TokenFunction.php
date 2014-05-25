@@ -25,8 +25,7 @@ namespace figdice\classes\lexer;
 
 use \figdice\FunctionFactory;
 use \figdice\LoggerFactory;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 use \figdice\exceptions\FunctionNotFoundException;
 
 class TokenFunction extends TokenOperator {
@@ -92,11 +91,11 @@ class TokenFunction extends TokenOperator {
 	}
 
 	
-	public function evaluate(Tag $tag, Renderer $renderer)
+	public function evaluate(Anchor $anchor)
 	{
 	  if($this->function === null) {
 	    //Instanciate the Function handler:
-	    $factories = $renderer->getRootView()->getFunctionFactories();
+	    $factories = $anchor->getRenderer()->getRootView()->getFunctionFactories();
 	    if ( (null != $factories) && (is_array($factories) ) ) {
 	      while(null != ($factory = $this->iterateFactory($factories)) ) {
 	        if(null !== ($this->function = $factory->create($this->name)))
@@ -115,12 +114,12 @@ class TokenFunction extends TokenOperator {
 	  $arguments = array();
 	  if($this->operands) {
 	    foreach($this->operands as $operandToken) {
-	      $arguments[] = $operandToken->evaluate($tag, $renderer);
+	      $arguments[] = $operandToken->evaluate($anchor);
 	    }
 	  }
 	  
 
-	  return $this->function->evaluate($tag, $renderer, $this->arity, $arguments);
+	  return $this->function->evaluate($this->arity, $arguments, $anchor);
 	}
 
 	/**

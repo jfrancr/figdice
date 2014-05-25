@@ -24,23 +24,20 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class Function_key implements FigFunction {
-	public function __construct() {
-	}
 
 	/**
-	 * @param {@link ViewElement} $viewElement
 	 * @param integer $arity
 	 * @param array $arguments
+	 * @param Anchor $anchor
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+	public function evaluate($arity, $arguments, Anchor $anchor) {
 		/**
 		 * @var Iteration
 		 */
-		$iteration = $renderer->getIteration();
+		$iteration = $anchor->getRenderer()->getIteration();
 		return $iteration->getKey();
 	}
 }

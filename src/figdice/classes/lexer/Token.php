@@ -23,17 +23,15 @@
 
 namespace figdice\classes\lexer;
 
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 abstract class Token {
 	public function __construct() {
 	}
 
 	/**
-	 * @param Tag $tag
-	 * @param Renderer $renderer
+	 * @param Anchor $anchor
 	 * @return mixed
 	 */
-	abstract function evaluate(Tag $tag, Renderer $renderer);
+	abstract function evaluate(Anchor $anchor);
 }

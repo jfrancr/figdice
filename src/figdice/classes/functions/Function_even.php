@@ -24,20 +24,17 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class Function_even implements FigFunction {
-	public function __construct() {
-	}
 
 	/**
-	 * @param ViewElement $viewElement
 	 * @param integer $arity
 	 * @param array $arguments
+	 * @param Anchor $anchor
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
-		$iteration = $renderer->getIteration();
+	public function evaluate($arity, $arguments, Anchor $anchor) {
+		$iteration = $anchor->getRenderer()->getIteration();
 		$position = $iteration->getPosition();
 		return (($position % 2) == 0);
 	}

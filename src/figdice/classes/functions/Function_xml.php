@@ -24,19 +24,17 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 use \figdice\LoggerFactory;
 
 class Function_xml implements FigFunction {
 
 	/**
-	 * @param Tag $viewElement
-	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
+	 * @param Anchor $anchor
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+	public function evaluate($arity, $arguments, Anchor $anchor) {
 		$xmlString = '<xml>' . $arguments[0] . '</xml>';
 		$xml = new \DomDocument();
 		$xml->loadXML($xmlString, LIBXML_NOENT);

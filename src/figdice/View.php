@@ -25,7 +25,6 @@ namespace figdice;
 
 use figdice\classes\NativeFunctionFactory;
 use figdice\classes\TagFigAttr;
-use figdice\classes\File;
 use figdice\classes\ViewElementTag;
 use figdice\classes\Tag;
 use figdice\classes\Renderer;
@@ -59,11 +58,9 @@ class View {
 
 	/**
 	 * The file of the view.
-	 * A View can be actually a subview, invoked by the fig:include directive.
-	 * In this case, the View's File represents the included file.
-	 * @var File
+	 * @var string
 	 */
-	private $file;
+	private $filename;
 
 	/**
 	 * @var LoggerInterface
@@ -283,7 +280,7 @@ class View {
 	 */
 	public function loadFile($filename) {
 	  $this->compiledView = null;
-		$this->file = new File($filename);
+		$this->filename = $filename;
 
 		// First, let's check if there is a Temp Path
 		// in which we could find the compiled view.
@@ -328,7 +325,7 @@ class View {
 	 */
 	public function loadString($string, $workingDirectory = null) {
 	  $this->compiledView = null;
-	  $this->file = new File($workingDirectory . '/(null)');
+	  $this->filename = $workingDirectory . '/(null)';
 	  $this->source = $string;
 	}
 	/**
@@ -398,7 +395,7 @@ class View {
 		if(! $bSuccess ) {
 			throw new XMLParsingException(
 					$errMsg,
-					($this->file ? $this->file->getFilename() : '(null)'),
+					$this->filename,
 					$lineNumber
 			);
 		}
@@ -424,7 +421,7 @@ class View {
 	public function saveCompiled()
 	{
 	  $compiledBinary = gzcompress(serialize($this->compiledView), 9);
-	  $compiledFilename = $this->makeCompiledFilename($this->file->getFilename() . '.fig');
+	  $compiledFilename = $this->makeCompiledFilename($this->filename . '.fig');
 	  $fp = fopen($compiledFilename, 'w');
 	  if ($fp) {
 	    fwrite($fp, $compiledBinary);
@@ -447,7 +444,7 @@ class View {
 	    $this->compile();
 	    // If an output directory is specified for the
 	    // compiler, let's try to store the binary.
-	    if($this->tempPath && $this->file) {
+	    if($this->tempPath && $this->filename) {
   	    $this->saveCompiled();
 	    }
 	  }
@@ -584,7 +581,7 @@ class View {
 
 	private function errorMessage($errorMessage) {
 		$lineNumber = xml_get_current_line_number($this->xmlParser);
-		$filename = ($this->file) ? $this->file->getFilename() : '(null)';
+		$filename = $this->filename;
 		$this->logger->error("$filename($lineNumber): $errorMessage");
 	}
 
@@ -705,9 +702,7 @@ class View {
 	 * @return string
 	 */
 	public function getFilename() {
-	  if ($this->file)
-  		return $this->file->getFilename();
-	  return __FILE__;
+ 		return $this->filename;
 	}
 	/**
 	 * @return string

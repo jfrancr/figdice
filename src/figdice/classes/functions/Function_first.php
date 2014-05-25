@@ -24,8 +24,7 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class Function_first implements FigFunction {
 	public function __construct() {
@@ -36,8 +35,8 @@ class Function_first implements FigFunction {
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
-		$iteration = $renderer->getIteration();
+	public function evaluate($arity, $arguments, Anchor $anchor) {
+		$iteration = $anchor->getRenderer()->getIteration();
 		return $iteration->first();
 	}
 }

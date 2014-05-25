@@ -23,8 +23,7 @@
 
 namespace figdice\classes\lexer;
 
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenLBracket extends TokenOperator {
 	public function __construct() {
@@ -39,11 +38,10 @@ class TokenLBracket extends TokenOperator {
 	}
 	
 	/**
-	 * @param Tag $viewElement
-	 * @param Renderer $renderer
+	 * @param Anchor $anchor
 	 * @return mixed
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer) {
+	public function evaluate(Anchor $anchor) {
 		throw new \Exception('Abnormal evaluation of left square bracket token.');
 	}
 }

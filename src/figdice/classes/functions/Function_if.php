@@ -24,8 +24,7 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 use \figdice\LoggerFactory;
 use figdice\exceptions\FunctionCallException;
 
@@ -34,15 +33,14 @@ class Function_if implements FigFunction {
 	}
 
 	/**
-	 * @param Tag $viewElement
-	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
+	 * @param Anchor $anchor
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+	public function evaluate($arity, $arguments, Anchor $anchor) {
 		if ($arity != 3) {
 			throw new FunctionCallException('if', 'Expected 3 arguments, ' . $arity . ' received.',
-					 $renderer->getView()->getFilename(), $viewElement->getLineNumber());
+					 $anchor->getFilename(), $anchor->getLineNumber());
 		}
 		return ($arguments[0] ? $arguments[1] : $arguments[2]);
 	}

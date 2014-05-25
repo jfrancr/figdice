@@ -22,8 +22,7 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenPlusMinus extends TokenOperator {
 	public $sign;
@@ -40,13 +39,12 @@ class TokenPlusMinus extends TokenOperator {
 		return 2;
 	}
 	/**
-	 * @param Tag $viewElement
-	 * @param Renderer $renderer
+	 * @param Anchor $anchor
 	 * @return mixed
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer) {
-		$opL = $this->operands[0]->evaluate($viewElement, $renderer);
-		$opR = $this->operands[1]->evaluate($viewElement, $renderer);
+	public function evaluate(Anchor $anchor) {
+		$opL = $this->operands[0]->evaluate($anchor);
+		$opR = $this->operands[1]->evaluate($anchor);
 		if($this->sign == '+') {
 			if((!is_numeric($opL)) || (!is_numeric($opR))) {
 				return $opL . $opR;

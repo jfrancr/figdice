@@ -24,18 +24,16 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class Function_default implements FigFunction {
 
 	/**
-	 * @param Tag $viewElement
-	 * @param Renderer $vrenderer
 	 * @param integer $arity
 	 * @param array $arguments
+	 * @param Anchor $anchor
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+	public function evaluate($arity, $arguments, Anchor $anchor) {
 		return ($arguments[0] ? $arguments[0] : $arguments[1]);
 	}
 }

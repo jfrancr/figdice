@@ -24,21 +24,17 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 use \figdice\LoggerFactory;
 
 class Function_const implements FigFunction {
-	public function __construct() {
-	}
 
 	/**
-	 * @param Tag $viewElement
-	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments one element: name of global constant, or class constant (myClass::myConst)
+	 * @param Anchor $anchor
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+	public function evaluate($arity, $arguments, Anchor $anchor) {
 		$constantName = trim($arguments[0]);
 		
 		if(preg_match('#([^:]+)::#', $constantName, $matches)) {

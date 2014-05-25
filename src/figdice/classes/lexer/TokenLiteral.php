@@ -23,8 +23,7 @@
 
 namespace figdice\classes\lexer;
 
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenLiteral extends Token {
 	/**
@@ -38,7 +37,7 @@ class TokenLiteral extends Token {
 		parent::__construct();
 		$this->value = $value;
 	}
-	public function evaluate(Tag $tag, Renderer $renderer)
+	public function evaluate(Anchor $anchor)
 	{
 	  return $this->value;
 	}

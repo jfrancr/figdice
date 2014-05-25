@@ -22,8 +22,7 @@
  */
 
 namespace figdice\classes\lexer;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class TokenMul extends TokenOperator {
 	public function __construct() {
@@ -38,7 +37,7 @@ class TokenMul extends TokenOperator {
 	 * @param Renderer $renderer
 	 * @return mixed
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer) {
-		return $this->operands[0]->evaluate($viewElement, $renderer) * $this->operands[1]->evaluate($viewElement, $renderer);
+	public function evaluate(Anchor $anchor) {
+		return $this->operands[0]->evaluate($anchor) * $this->operands[1]->evaluate($anchor);
 	}
 }

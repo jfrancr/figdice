@@ -23,8 +23,7 @@
 
 namespace figdice;
 
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 
 /**
@@ -43,5 +42,5 @@ interface FigFunction {
 	 * @param integer $arity
 	 * @param array $arguments
 	 */
-	function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments);
+	function evaluate($arity, $arguments, Anchor $anchor);
 }

@@ -24,8 +24,7 @@
 use figdice\classes\lexer\Lexer;
 use figdice\exceptions\LexerUnexpectedCharException;
 use figdice\View;
-use figdice\classes\File;
-use figdice\classes\ViewElementTag;
+use figdice\classes\Anchor;
 use figdice\classes\Renderer;
 
 /**
@@ -56,17 +55,6 @@ class NativeFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 		// it embeds a real NativeFunctionFactory instance.
 		$view = $this->view;
 
-		$viewFile = $this->getMock('\\figdice\\classes\\File', null, array('PHPUnit'));
-		$viewElement = $this->getMock('\\figdice\\classes\\ViewElementTag', array('getCurrentFile'), array(& $view, 'testtag', 12));
-		$viewElement->expects($this->any())
-			->method('getCurrentFile')
-			->will($this->returnValue($viewFile));
-
-		// Make sure that the passed expression is successfully parsed,
-		// before asserting stuff on its evaluation.
-		$parseResult = $lexer->parse($viewElement);
-		$this->assertTrue($parseResult, 'parsed expression: ' . $lexer->getExpression());
-
 		$renderer = $this->getMock('\\figdice\\classes\\Renderer');
 		$renderer->expects($this->any())
 		->method('getRootView')
@@ -74,10 +62,15 @@ class NativeFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 		$renderer->expects($this->any())
 		->method('getView')
 		->will($this->returnValue($view));
+
+		$anchor = new Anchor($renderer, __FILE__, __LINE__);
+
+		// Make sure that the passed expression is successfully parsed,
+		// before asserting stuff on its evaluation.
+		$parseResult = $lexer->parse($anchor);
+		$this->assertTrue($parseResult, 'parsed expression: ' . $lexer->getExpression());
 		
-		$tag = $this->getMockBuilder('\\figdice\\classes\\Tag')->disableOriginalConstructor()->getMock();
-		
-		return $lexer->evaluate($renderer, $tag);
+		return $lexer->evaluate($anchor);
 	}
 
 

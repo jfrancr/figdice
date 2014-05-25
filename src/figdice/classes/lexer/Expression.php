@@ -23,8 +23,7 @@
 
 namespace figdice\classes\lexer;
 
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 
 class Expression extends Token {
 	/**
@@ -37,7 +36,7 @@ class Expression extends Token {
 		$this->root = $token;
 	}
 
-	public function evaluate(Tag $viewElement, Renderer $renderer) {
-		return $this->root->evaluate($viewElement, $renderer);
+	public function evaluate(Anchor $anchor) {
+		return $this->root->evaluate($anchor);
 	}
 }
