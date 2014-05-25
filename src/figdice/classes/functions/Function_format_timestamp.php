@@ -2,7 +2,7 @@
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
  * @copyright 2004-2014, Gabriel Zerbib.
- * @version 2.0.2
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -24,8 +24,7 @@
 namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
-use \figdice\classes\Tag;
-use \figdice\classes\Renderer;
+use \figdice\classes\Anchor;
 use figdice\exceptions\FunctionCallException;
 
 class Function_format_timestamp implements FigFunction {
@@ -34,14 +33,13 @@ class Function_format_timestamp implements FigFunction {
 	 * Function's arguments:
 	 *  timestamp, format [, locale]
 	 * 
-	 * @param Tag $viewElement
-	 * @param Renderer $renderer
 	 * @param integer $arity
 	 * @param array $arguments
+	 * @param Anchor $anchor
 	 */
-	public function evaluate(Tag $viewElement, Renderer $renderer, $arity, $arguments) {
+	public function evaluate($arity, $arguments, Anchor $anchor) {
 		if($arity < 2)
-			throw new FunctionCallException('format_timestamp', 'Missing argument 2 (format)', $renderer->getView()->getFilename(), $viewElement->getLineNumber());
+			throw new FunctionCallException('format_timestamp', 'Missing argument 2 (format)', $anchor->getFilename(), $anchor->getLineNumber());
 
 		$timestamp = $arguments[0];
 		$format = $arguments[1];
