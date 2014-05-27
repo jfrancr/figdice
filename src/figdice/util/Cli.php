@@ -1,35 +1,43 @@
 <?php
-
-require_once dirname(__FILE__).'/../../../autoload.php';
+namespace figdice\util;
 
 use figdice\util\CommandLine;
 use figdice\classes\Dictionary;
 use figdice\exceptions\XMLParsingException;
 use figdice\exceptions\DictionaryDuplicateKeyException;
+use \RecursiveDirectoryIterator;
+use \RecursiveIteratorIterator;
 
-$arguments = CommandLine::parseArgs();
 
-if (isset($arguments[0])) {
-  if ($arguments[0] == 'dict') {
-    if (isset($arguments[1])) {
-      if ($arguments[1] == 'compile') {
-        if (isset($arguments[2])) {
-          exit(compileDictionaries($arguments[2], isset($arguments['output']) ? $arguments['output'] : null));
+class Cli
+{
+
+  public static function main()
+  {
+    $arguments = CommandLine::parseArgs();
+    
+    if (isset($arguments[0])) {
+      if ($arguments[0] == 'dict') {
+        if (isset($arguments[1])) {
+          if ($arguments[1] == 'compile') {
+            if (isset($arguments[2])) {
+              exit(self::compileDictionaries($arguments[2], isset($arguments['output']) ? $arguments['output'] : null));
+            }
+          }
         }
       }
     }
+    
+    exit(self::usage());
   }
-}
 
-exit(usage());
-
-function usage()
+  private static function usage()
 {
   $usage = <<<STRING
 usage: figdice.phar dict compile [options] <languageFolder>
 
     --output      Output folder for compiled dictionaries.
-                  Defaults to source folder.
+                  Defaults to <languageFolder>.
 
 
 STRING;
@@ -42,23 +50,29 @@ STRING;
  * @param string $targetFolder
  * @return integer
  */
-function compileDictionaries($sourceFolder, $targetFolder = null)
+  private static function compileDictionaries($sourceFolder, $targetFolder = null)
 {
   if (! $targetFolder) {
     $targetFolder = $sourceFolder;
   }
   
-  $iterator = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($sourceFolder), 
-    RecursiveIteratorIterator::LEAVES_ONLY | RecursiveIteratorIterator::SELF_FIRST
-  );
+  try {
+    $iterator = new RecursiveIteratorIterator(
+      new RecursiveDirectoryIterator($sourceFolder), 
+      RecursiveIteratorIterator::LEAVES_ONLY | RecursiveIteratorIterator::SELF_FIRST
+    );
+  } catch (\UnexpectedValueException $ex) {
+    echo('FAILED' . PHP_EOL);
+    file_put_contents('php://stderr', 'Failed to open directory: ' . $sourceFolder . PHP_EOL . PHP_EOL);
+    return 1;
+  }
   
   foreach ($iterator as $sourceFile => $sourceNode) {
     if (substr($sourceFile, -4) != '.xml') {
       continue;
     }
     
-    $targetFile = preg_replace(';^'.$sourceFolder.';', $targetFolder, $sourceFile) . '.php';
+    $targetFile = preg_replace(';^'.$sourceFolder.';', $targetFolder, $sourceFile) . '.figdic';
     
     try {
       if(file_exists($targetFile)) {
@@ -85,4 +99,6 @@ function compileDictionaries($sourceFolder, $targetFolder = null)
   }
   echo(PHP_EOL);
   return 0;
+}
+
 }

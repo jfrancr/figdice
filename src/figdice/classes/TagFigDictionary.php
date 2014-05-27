@@ -76,7 +76,7 @@ class TagFigDictionary extends TagFig {
       //Determine whether this dictionary was pre-compiled:
       $tmpPath = $renderer->getRootView()->getTempPath();
       if($tmpPath) {
-        $tmpFile = $tmpPath . DIRECTORY_SEPARATOR . 'Dictionary' . DIRECTORY_SEPARATOR . $targetLanguage . DIRECTORY_SEPARATOR . $file . '.php';
+        $tmpFile = $tmpPath . DIRECTORY_SEPARATOR . 'Dictionary' . DIRECTORY_SEPARATOR . $targetLanguage . DIRECTORY_SEPARATOR . $file . '.figdic';
         //If the tmp file already exists,
         if(file_exists($tmpFile)) {
           //but is older than the source file,
