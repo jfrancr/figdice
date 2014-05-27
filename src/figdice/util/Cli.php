@@ -12,6 +12,10 @@ use \RecursiveIteratorIterator;
 class Cli
 {
 
+  public static function tty($fd)
+  {
+    return function_exists('posix_isatty') && posix_isatty($fd);
+  }
   public static function main()
   {
     $arguments = CommandLine::parseArgs();
@@ -32,8 +36,8 @@ class Cli
   }
 
   private static function usage()
-{
-  $usage = <<<STRING
+  {
+    $usage = <<<STRING
 usage: figdice.phar dict compile [options] <languageFolder>
 
     --output      Output folder for compiled dictionaries.
@@ -41,64 +45,78 @@ usage: figdice.phar dict compile [options] <languageFolder>
 
 
 STRING;
-  file_put_contents('php://stderr', $usage);
-  return 1;
-}
-
-/**
- * @param string $sourceFolder
- * @param string $targetFolder
- * @return integer
- */
-  private static function compileDictionaries($sourceFolder, $targetFolder = null)
-{
-  if (! $targetFolder) {
-    $targetFolder = $sourceFolder;
-  }
-  
-  try {
-    $iterator = new RecursiveIteratorIterator(
-      new RecursiveDirectoryIterator($sourceFolder), 
-      RecursiveIteratorIterator::LEAVES_ONLY | RecursiveIteratorIterator::SELF_FIRST
-    );
-  } catch (\UnexpectedValueException $ex) {
-    echo('FAILED' . PHP_EOL);
-    file_put_contents('php://stderr', 'Failed to open directory: ' . $sourceFolder . PHP_EOL . PHP_EOL);
+    file_put_contents('php://stderr', $usage);
     return 1;
   }
+
+  private static function RED($string, $fd)
+  {
+    return self::tty($fd) ?
+     "\e[91m" . $string . "\e[0m" 
+     : $string;
+  }
+  private static function GREEN($string, $fd)
+  {
+    return self::tty($fd) ?
+     "\e[92m" . $string . "\e[0m" 
+     : $string;
+  }
   
-  foreach ($iterator as $sourceFile => $sourceNode) {
-    if (substr($sourceFile, -4) != '.xml') {
-      continue;
-    }
+  /**
+   * @param string $sourceFolder
+   * @param string $targetFolder
+   * @return integer
+   */
+  private static function compileDictionaries($sourceFolder, $targetFolder = null)
+  {
     
-    $targetFile = preg_replace(';^'.$sourceFolder.';', $targetFolder, $sourceFile) . '.figdic';
+    if (! $targetFolder) {
+      $targetFolder = $sourceFolder;
+    }
     
     try {
-      if(file_exists($targetFile)) {
-        $success = @ unlink($targetFile);
-        if (! $success) {
-          file_put_contents('php://stderr', 'Failed to overwrite file: ' . $targetFile . PHP_EOL . PHP_EOL);
-          return 1;
-        }
-      }
-      Dictionary::compile($sourceFile, $targetFile);
-      touch($targetFile, filemtime($sourceFile));
-      echo('  OK  ' . $sourceFile . PHP_EOL);
-    } catch (DictionaryDuplicateKeyException $ex) {
+      $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($sourceFolder), 
+        RecursiveIteratorIterator::LEAVES_ONLY | RecursiveIteratorIterator::SELF_FIRST
+      );
+    } catch (\UnexpectedValueException $ex) {
       echo('FAILED' . PHP_EOL);
-      file_put_contents('php://stderr', '  ERR ' . $targetFile . PHP_EOL);
-      file_put_contents('php://stderr', 'Duplicate key: ' . $ex->getKey() . PHP_EOL . PHP_EOL);
-      return 1;
-    } catch (XMLParsingException $ex) {
-      echo('FAILED' . PHP_EOL);
-      file_put_contents('php://stderr', '  ERR ' . $targetFile . PHP_EOL);
-      file_put_contents('php://stderr', $ex->getMessage() . PHP_EOL . PHP_EOL);
+      file_put_contents('php://stderr', 'Failed to open directory: ' . $sourceFolder . PHP_EOL . PHP_EOL);
       return 1;
     }
+  
+    foreach ($iterator as $sourceFile => $sourceNode) {
+      if (substr($sourceFile, -4) != '.xml') {
+        continue;
+      }
+      
+      $targetFile = preg_replace(';^'.$sourceFolder.';', $targetFolder, $sourceFile) . '.figdic';
+      
+      try {
+        if(file_exists($targetFile)) {
+          $success = @ unlink($targetFile);
+          if (! $success) {
+            file_put_contents('php://stderr', 'Failed to overwrite file: ' . $targetFile . PHP_EOL . PHP_EOL);
+            return 1;
+          }
+        }
+        Dictionary::compile($sourceFile, $targetFile);
+        touch($targetFile, filemtime($sourceFile));
+        echo('  ['.self::GREEN('OK', STDERR).']  ' . $sourceFile . PHP_EOL);
+      } catch (DictionaryDuplicateKeyException $ex) {
+        echo('FAILED' . PHP_EOL);
+        file_put_contents('php://stderr', '  ['.self::RED('ERR', STDERR).'] ' . $targetFile . PHP_EOL);
+        file_put_contents('php://stderr', 'Duplicate key: ' . $ex->getKey() . PHP_EOL . PHP_EOL);
+        return 1;
+      } catch (XMLParsingException $ex) {
+        echo('FAILED' . PHP_EOL);
+        file_put_contents('php://stderr', '  ['.self::RED('ERR', STDERR).'] ' . $targetFile . PHP_EOL);
+        file_put_contents('php://stderr', $ex->getMessage() . PHP_EOL . PHP_EOL);
+        return 1;
+      }
+    }
+    echo(PHP_EOL);
+    return 0;
   }
-  echo(PHP_EOL);
-  return 0;
-}
 
 }
