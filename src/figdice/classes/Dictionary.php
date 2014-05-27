@@ -26,6 +26,7 @@ namespace figdice\classes;
 use \figdice\exceptions\DictionaryEntryNotFoundException;
 use \figdice\exceptions\DictionaryDuplicateKeyException;
 use \figdice\exceptions\FileNotFoundException;
+use figdice\exceptions\XMLParsingException;
 
 /**
  * The dictionary XML file must be in the form:
@@ -119,7 +120,7 @@ class Dictionary {
 	 * @param string $source Path and name of the file to compile.
 	 * @param string $target
 	 * @return boolean
-	 * @throws DictionaryDuplicateKeyException, FileNotFoundException
+	 * @throws DictionaryDuplicateKeyException, FileNotFoundException, XMLParsingException
 	 * TODO: Perform some permission tests on the target folder, and throw relevant exceptions accordingly.
 	 */
 	public static function compile($source, $target) {
@@ -130,7 +131,11 @@ class Dictionary {
 
 		$entries = array();
 		$domDocument = new \DOMDocument();
-		$domDocument->load($source, LIBXML_COMPACT | LIBXML_NONET);
+		$success = @ $domDocument->load($source, LIBXML_COMPACT | LIBXML_NONET);
+		if (! $success) {
+		  $lastError = error_get_last();
+		  throw new XMLParsingException($lastError['message'], $source, 0);
+		}
 		$domNodeList = $domDocument->getElementsByTagName('entry');
 		$count = $domNodeList->length;
 		for($i = 0; $i < $count; ++ $i) {
