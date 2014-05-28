@@ -30,8 +30,6 @@ use figdice\classes\Tag;
 use figdice\classes\Renderer;
 use figdice\exceptions\FileNotFoundException;
 use figdice\exceptions\XMLParsingException;
-
-use Psr\Log\LoggerInterface;
 use figdice\exceptions\RenderingException;
 use figdice\classes\XMLEntityTransformer;
 use figdice\classes\Slot;
@@ -61,11 +59,6 @@ class View {
 	 * @var string
 	 */
 	private $filename;
-
-	/**
-	 * @var LoggerInterface
-	 */
-	public $logger;
 
 	/**
 	 * Cache map of Filter instances, for name.
@@ -218,7 +211,6 @@ class View {
 		$this->result = '';
 		$this->rootNode = null;
 		$this->stack = array();
-		$this->logger = LoggerFactory::getLogger(get_class($this));
 		$this->lexers = array();
 		$this->callStackData = array(array());
 		$this->functionFactories = array(new NativeFunctionFactory());
@@ -285,7 +277,7 @@ class View {
 		// First, let's check if there is a Temp Path
 		// in which we could find the compiled view.
 		if ($this->tempPath) {
-		  $flatFilename = $this->makeCompiledFilename($filename);
+		  $flatFilename = self::makeCompiledFilename($filename);
 		  $compiledFilename = $this->tempPath . '/' . $flatFilename . '.fig';
 		  // If there is a compiled file, and either no source file
 		  if ( file_exists($compiledFilename) ) {
@@ -304,12 +296,11 @@ class View {
 		}
 		else {
 			$message = "File not found: $filename";
-			$this->logger->error($message);
 			throw new FileNotFoundException($message, $filename);
 		}
 	}
 
-	public function makeCompiledFilename($filename)
+	public static function makeCompiledFilename($filename)
 	{
 	  return str_replace('/', '__', 
 	    str_replace('\\', '__', $filename)
@@ -386,7 +377,6 @@ class View {
 					$errMsg .= '. Last element: ' . $lastElement->getName();
 				}
 			}
-			$this->errorMessage($errMsg);
 		}
 
 		xml_parser_free($this->xmlParser);
@@ -424,7 +414,7 @@ class View {
 	    return;
 
 	  $compiledBinary = serialize($this->compiledView);
-	  $compiledFilename = $this->makeCompiledFilename($this->filename . '.fig');
+	  $compiledFilename = self::makeCompiledFilename($this->filename . '.fig');
 	  $fp = fopen($this->tempPath . '/' . $compiledFilename, 'w');
 	  if ($fp) {
 	    fwrite($fp, $compiledBinary);
@@ -581,12 +571,6 @@ class View {
 		$currentElement->appendCDataChild($cdata);
 	}
 
-
-	private function errorMessage($errorMessage) {
-		$lineNumber = xml_get_current_line_number($this->xmlParser);
-		$filename = $this->filename;
-		$this->logger->error("$filename($lineNumber): $errorMessage");
-	}
 
 	/**
 	 * Inject the content of the fig:plug nodes

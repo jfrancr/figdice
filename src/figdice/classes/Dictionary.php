@@ -1,8 +1,8 @@
 <?php
 /**
  * @author Gabriel Zerbib <gabriel@figdice.org>
- * @copyright 2004-2013, Gabriel Zerbib.
- * @version 2.0.0
+ * @copyright 2004-2014, Gabriel Zerbib.
+ * @version 2.1.0
  * @package FigDice
  *
  * This file is part of FigDice.
@@ -136,6 +136,12 @@ class Dictionary {
 		  $lastError = error_get_last();
 		  throw new XMLParsingException($lastError['message'], $source, 0);
 		}
+		
+		// TODO: currently, the fig: namespace is hardcoded.
+		if ($domDocument->documentElement->tagName != 'fig:'.TagFigDictionary::TAGNAME) {
+		  return false;
+		}
+		
 		$domNodeList = $domDocument->getElementsByTagName('entry');
 		$count = $domNodeList->length;
 		for($i = 0; $i < $count; ++ $i) {
