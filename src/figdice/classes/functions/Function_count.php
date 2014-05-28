@@ -25,7 +25,6 @@ namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
 use \figdice\classes\Anchor;
-use \figdice\LoggerFactory;
 
 class Function_count implements FigFunction {
 	

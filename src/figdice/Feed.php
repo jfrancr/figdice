@@ -24,7 +24,6 @@
 namespace figdice;
 
 use \figdice\exceptions\FeedRuntimeException;
-use \Psr\Log\LoggerInterface;
 
 /**
  * The Feed is the data provider for the View. It makes the link between the data managed by 
@@ -41,11 +40,6 @@ use \Psr\Log\LoggerInterface;
 abstract class Feed {
 	
 	/**
-	 * @var LoggerInterface
-	 */
-	protected $logger;
-
-	/**
 	 * Associative array of the input parameters of the feed,
 	 * as passed in the call by tag <fig:feed paramN="valueN">
 	 * Names 'class', 'file' and 'target' are reserved and cannot be used.
@@ -56,7 +50,6 @@ abstract class Feed {
 
 
 	public function __construct()	{
-		$this->logger = LoggerFactory::getLogger(get_class($this));
 	}
 
 	/**

@@ -33,7 +33,9 @@ class Function_php implements FigFunction {
 		$funcName = array_shift($arguments);
 		if(! function_exists($funcName)) {
 			$logger = LoggerFactory::getLogger(get_class($this));
-			$logger->error('Invalid PHP function: ' . $funcName);
+			if ($logger) {
+  			$logger->error('Invalid PHP function: ' . $funcName);
+			}
 			$this->error = true;
 			return false;
 		}

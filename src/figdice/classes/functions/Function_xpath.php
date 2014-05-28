@@ -26,7 +26,6 @@ namespace figdice\classes\functions;
 use \figdice\FigFunction;
 use \figdice\classes\Anchor;
 use \figdice\classes\FigDOMNodeList;
-use \figdice\LoggerFactory;
 
 class Function_xpath implements FigFunction {
 

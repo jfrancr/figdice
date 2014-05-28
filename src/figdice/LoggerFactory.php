@@ -24,7 +24,6 @@
 namespace figdice;
 
 use Psr\Log\NullLogger;
-use Psr\Log\LoggerInterface;
 
 /**
  * A bridge to the PSR3 LoggerInterface.
@@ -48,11 +47,13 @@ class LoggerFactory {
 	 * custom functions, or some of your feeds, etc.)
 	 *
 	 * @param string $class The class name, or an object instance.
-	 * @return LoggerInterface
+	 * @return \Psr\Log\LoggerInterface
 	 */
 	public static function getLogger($class) {
 		if(null == self::$delegate) {
-			return new NullLogger();
+		  if (class_exists('\\Psr\\Log\\NullLogger'))
+  			return new NullLogger();
+  		return null;
 		}
 		return self::$delegate->getLogger($class);
 	}

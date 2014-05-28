@@ -85,7 +85,9 @@ class TagFigTrans extends TagFig {
 	    try {
 	      $value = $renderer->translate($key, $dictionaryName);
 	    } catch(DictionaryEntryNotFoundException $ex) {
-	      LoggerFactory::getLogger('Dictionary')->error('Translation not found: key=' . $key . ', dictionary=' . $dictionaryName . ', language=' . $targetLanguage . ', file=' . $renderer->getView()->getFilename() . ', line=' . $this->xmlLineNumber);
+	      $logger = LoggerFactory::getLogger('Dictionary');
+	      if ($logger)
+	        $logger->error('Translation not found: key=' . $key . ', dictionary=' . $dictionaryName . ', language=' . $targetLanguage . ', file=' . $renderer->getView()->getFilename() . ', line=' . $this->xmlLineNumber);
 	      return $key;
 	    }
 	  }
@@ -140,7 +142,9 @@ class TagFigTrans extends TagFig {
 	  //So in the meantime we output the key.
 	  if($value == '') {
   	  $value = $key;
-  	  LoggerFactory::getLogger('Dictionary')->error(
+  	  $logger = LoggerFactory::getLogger('Dictionary');
+  	  if ($logger)
+  	    $logger->error(
     	  'Empty translation: key=' . $key .
     	  ', dictionary=' . $dictionaryName .
     	  ', language=' . $targetLanguage .

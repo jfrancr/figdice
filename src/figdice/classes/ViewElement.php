@@ -61,7 +61,6 @@ abstract class ViewElement {
 	 */
 	public $view;
 	public $data;
-	public $logger;
 
 	/**
 	 * The line in XML file where this element begins.

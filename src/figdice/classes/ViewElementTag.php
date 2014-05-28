@@ -23,9 +23,7 @@
 
 namespace figdice\classes;
 
-use Psr\Log\LoggerIntergace;
 use figdice\View;
-use figdice\LoggerFactory;
 use figdice\exceptions\RenderingException;
 use figdice\exceptions\DictionaryDuplicateKeyException;
 use figdice\exceptions\RequiredAttributeException;
@@ -136,18 +134,6 @@ class ViewElementTag extends ViewElement {
 		$this->parent->children[] = & $newElement;
 	}
 
-	/**
-	 * Returns the logger instance,
-	 * or creates one beforehand, if null.
-	 *
-	 * @return LoggerInterface
-	 */
-	private function getLogger() {
-		if(! $this->logger) {
-			$this->logger = LoggerFactory::getLogger(get_class($this));
-		}
-		return $this->logger;
-	}
 	/**
 	 * The tag name. 
 	 * @return string

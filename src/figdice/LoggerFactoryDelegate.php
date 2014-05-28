@@ -23,13 +23,11 @@
 
 namespace figdice;
 
-use Psr\Log\LoggerInterface;
-
 interface LoggerFactoryDelegate {
 	/**
 	 * Returns the proper Logger object for corresponding class.
 	 * @param mixed $class Can be either string (name of class) or object instance.
-	 * @return LoggerInterface
+	 * @return \Psr\Log\LoggerInterface
 	 */
 	public function getLogger($class);
 }

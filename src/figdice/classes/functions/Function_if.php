@@ -25,7 +25,6 @@ namespace figdice\classes\functions;
 
 use \figdice\FigFunction;
 use \figdice\classes\Anchor;
-use \figdice\LoggerFactory;
 use figdice\exceptions\FunctionCallException;
 
 class Function_if implements FigFunction {

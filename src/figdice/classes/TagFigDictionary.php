@@ -23,6 +23,8 @@
 
 namespace figdice\classes;
 
+use \figdice\exceptions\FileNotFoundException;
+
 class TagFigDictionary extends TagFig {
 	const TAGNAME = 'dictionary';
 
@@ -92,6 +94,7 @@ class TagFigDictionary extends TagFig {
   
       //If we don't even have a temp folder specified, load the dictionary for the first time.
       else {
+        // might through a DictionaryDuplicateKeyException
         $dictionary->load();
       }
     } catch(FileNotFoundException $ex) {
@@ -99,8 +102,6 @@ class TagFigDictionary extends TagFig {
         ', language=' . $this->getView()->getLanguage() .
         ', source=' . $this->getCurrentFilename(),
         $this->getCurrentFilename() );
-    } catch(DictionaryDuplicateKeyException $ddkex) {
-      $this->getLogger()->error('Duplicate key: "' . $ddkex->getKey() . '" in dictionary: ' . $ddkex->getFilename());
     }
   
   

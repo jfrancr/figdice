@@ -41,7 +41,9 @@ class Function_const implements FigFunction {
 			$className = $matches[1];
 			if(! class_exists($className)) {
 				$logger = LoggerFactory::getLogger(__CLASS__);
-				$logger->warning("Undefined class: $className in static: $constantName");
+				if ($logger) {
+  				$logger->warning("Undefined class: $className in static: $constantName");
+				}
 				return null;
 			}
 		}
@@ -53,7 +55,9 @@ class Function_const implements FigFunction {
 		//Undefined symbol: error.
 		else {
 			$logger = LoggerFactory::getLogger(__CLASS__);
-			$logger->warning("Undefined constant: $constantName");
+			if ($logger) {
+  			$logger->warning("Undefined constant: $constantName");
+			}
 			return null;
 		}
 	}
