@@ -50,7 +50,7 @@ The **\figdice** namespace is made available thanks to the **autoload** Composer
 Download the latest [FigDice phar](https://github.com/gabrielzerbib/figdice/releases/download/2.0.4/figdice-2.0.4.phar) file to the location of your choice.
 Then, in your source files where you need to use FigDice features, write the line:
 
-    require_once 'phar:///path/to/figdice.phar';
+    require_once 'path/to/figdice.phar';
 
 The phar file's stub registers an **autoload** function for the classes in the **\figdice** namespace. Notice that, if you already have an old-style **__autoload** function, you must register it with [spl_autoload_register](http://php.net/manual/en/function.spl-autoload-register.php) before importing the phar.
 
