@@ -7,26 +7,32 @@
  * @author              Patrick Fisher <patrick@pwfisher.com>
  * @since               August 21, 2009
  * @see                 https://github.com/pwfisher/CommandLine.php
+ * 
+ * Modified by Gabriel Zerbib <gabriel@figdice.org> to
+ * not accept long option value without the = symbol
+ * (i.e "--foo bar" no longer fives ["foo"]=>"bar" but instead:
+ * ["foo"]=>true, and a plain arg "bar".  
  */
 
 namespace figdice\util;
 
 class CommandLine
 {
-    public static $args;
+    public static $args = null;
 
     /**
      * PARSE ARGUMENTS
      *
      * This command line option parser supports any combination of three types of options
      * [single character options (`-a -b` or `-ab` or `-c -d=dog` or `-cd dog`),
-     * long options (`--foo` or `--bar=baz` or `--bar baz`)
+     * long options (`--foo` or `--bar=baz`)
      * and arguments (`arg1 arg2`)] and returns a simple array.
      *
      * [pfisher ~]$ php test.php --foo --bar=baz --spam eggs
      *   ["foo"]   => true
      *   ["bar"]   => "baz"
-     *   ["spam"]  => "eggs"
+     *   ["spam"]  => true
+     *   [0]       => "eggs"
      *
      * [pfisher ~]$ php test.php -abc foo
      *   ["a"]     => true
@@ -65,6 +71,10 @@ class CommandLine
      */
     public static function parseArgs($argv = null)
     {
+      if ( (null == $argv) && (null != self::$args) ) {
+        return self::$args;
+      }
+      
         $argv                           = $argv ? $argv : $_SERVER['argv'];
 
         array_shift($argv);
@@ -83,18 +93,7 @@ class CommandLine
                 if ($eqPos === false)
                 {
                     $key                = substr($arg, 2);
-
-                    // --foo value
-                    if ($i + 1 < $j && $argv[$i + 1][0] !== '-')
-                    {
-                        $value          = $argv[$i + 1];
-                        $i++;
-                    }
-                    else
-                    {
-                        $value          = isset($out[$key]) ? $out[$key] : true;
-                    }
-                    $out[$key]          = $value;
+                    $out[$key]          = true;
                 }
 
                 // --bar=baz

@@ -155,7 +155,7 @@ class Dictionary {
 		//If the hierarchy of folders where to store the target does not exist,
 		//attempt to create it.
 		if(! file_exists(dirname($target))) {
-			mkdir(dirname($target), 0777, true);
+			mkdir(dirname($target), 0755, true);
 		}
 		$fp = fopen($target, 'w');
 		fwrite($fp, serialize($entries));
