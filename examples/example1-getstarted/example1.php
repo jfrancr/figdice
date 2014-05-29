@@ -41,6 +41,11 @@ require_once dirname(__FILE__).'/../../vendor/autoload.php';
 // Create a Fig View object
 $view = new \figdice\View();
 
+// Tell the View where we want to save the compiled templates
+// (optional: JIT compiled code will not be saved for
+// reuse if not specified).
+$view->setTempPath(dirname(__FILE__));
+
 // Load its main template file:
 try {
 	$view->loadFile(dirname(__FILE__).'/template-main.xml');
@@ -80,10 +85,6 @@ class MyUser {
 $view->mount('userDetails', new MyUser('Mr', 'Gabriel') );
 
 
-// Tell the View where we want to save the compiled templates
-// (optional: JIT compiled code will not be saved for
-// reuse if not specified).
-$view->setTempPath(dirname(__FILE__));
 
 // Render the template!
 try {

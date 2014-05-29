@@ -277,8 +277,7 @@ class View {
 		// First, let's check if there is a Temp Path
 		// in which we could find the compiled view.
 		if ($this->tempPath) {
-		  $flatFilename = self::makeCompiledFilename($filename);
-		  $compiledFilename = $this->tempPath . '/' . $flatFilename . '.fig';
+		  $compiledFilename = $this->tempPath . '/' . basename($filename) . '.fig';
 		  // If there is a compiled file, and either no source file
 		  if ( file_exists($compiledFilename) ) {
 		    // or a source file which is older than the compiled version,
@@ -299,13 +298,6 @@ class View {
 			throw new FileNotFoundException($message, $filename);
 		}
 	}
-
-	public static function makeCompiledFilename($filename)
-	{
-	  return str_replace('/', '__', 
-	    str_replace('\\', '__', $filename)
-	  );
-	} 
 
 	/**
 	 * Instead of loading a file, you can load a string, and optionally pass
@@ -408,18 +400,27 @@ class View {
 	  $compiledBinary = file_get_contents($compiledFilename);
 	  $this->compiledView = unserialize($compiledBinary);
 	}
+	/**
+	 * @return boolean
+	 */
 	public function saveCompiled()
 	{
 	  if (! $this->tempPath)
-	    return;
+	    return false;
 
 	  $compiledBinary = serialize($this->compiledView);
-	  $compiledFilename = self::makeCompiledFilename($this->filename . '.fig');
-	  $fp = fopen($this->tempPath . '/' . $compiledFilename, 'w');
+	  // Attempt to create the target directory if not exists.
+	  if (! file_exists($this->tempPath)) {
+	    mkdir($this->tempPath, 0755, true);
+	  }
+	  $targetFilename = $this->tempPath . '/' . basename($this->filename) . '.fig';
+	  $fp = fopen($targetFilename, 'w');
 	  if ($fp) {
 	    fwrite($fp, $compiledBinary);
 	    fclose($fp);
+	    return true;
 	  }
+	  return false;
 	}
 
 	/**

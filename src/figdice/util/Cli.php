@@ -1,13 +1,14 @@
 <?php
 namespace figdice\util;
 
-use figdice\util\CommandLine;
-use figdice\classes\Dictionary;
-use figdice\exceptions\XMLParsingException;
-use figdice\exceptions\DictionaryDuplicateKeyException;
 use \RecursiveDirectoryIterator;
 use \RecursiveIteratorIterator;
 use \FilesystemIterator;
+use figdice\util\CommandLine;
+use figdice\exceptions\XMLParsingException;
+use figdice\exceptions\DictionaryDuplicateKeyException;
+use figdice\classes\Dictionary;
+use figdice\classes\TagFigDictionary;
 use figdice\View;
 
 
@@ -202,19 +203,24 @@ STRING;
    */
   private static function compileViews($sourceFolder, $targetFolder = null)
   {
-  
     if (! $targetFolder) {
       $targetFolder = $sourceFolder;
+    }
+    else {
+      // If target dir does not exist, attempt to create it.
+      if (! file_exists($targetFolder)) {
+        if (! mkdir($targetFolder, 0755, true)) {
+          file_put_contents('php://stderr', 'Failed to create target directory: ' . $targetFolder . PHP_EOL . PHP_EOL);
+          echo(self::ON_RED('FAILED', STDOUT) . PHP_EOL);
+          return 1;
+        }
+      }
     }
   
   
     // Should we clean first?
     if (CommandLine::getBoolean('clean') || CommandLine::getBoolean('clean-only')) {
   
-      // If target dir does not exist, attempt to create it.
-      if (! file_exists($targetFolder)) {
-        mkdir($targetFolder, 0755, true);
-      }
   
       echo('Cleaning .fig files in target folder...' . PHP_EOL);
       try {
@@ -263,8 +269,11 @@ STRING;
         continue;
       }
   
-      $targetFile = View::makeCompiledFilename($sourceFile) . '.fig';
-  
+      
+      $targetFile =  preg_replace(';^'.
+        preg_replace(';/$;', '', $sourceFolder).';', 
+        preg_replace(';/$;', '', $targetFolder), $sourceFile). '.fig';
+
       try {
   
         // Attempt to compile only if target file is older
@@ -280,11 +289,25 @@ STRING;
   
           $view = new View();
           $view->loadFile($sourceFile);
-          $view->compile();
-          $view->setTempPath($targetFolder);
-          $view->saveCompiled();
-
-          echo('  ['.self::GREEN('OK', STDOUT).']  ' . $sourceFile . PHP_EOL);
+          // Specify temppath after Load, so as to force a reload
+          // of the source, even if there is already a compiled version present.
+          $view->setTempPath(dirname($targetFile));
+          $compiledView = $view->compile();
+          
+          // Do not compile Dictionaries.
+          if ($compiledView->getRootTag() instanceof TagFigDictionary) {
+            continue;
+          }
+           
+          $success = @ $view->saveCompiled();
+          if ($success) {
+            echo('  ['.self::GREEN('OK', STDOUT).']  ' . $sourceFile . PHP_EOL);
+          }
+          else {
+            $failed = true;
+            echo('  ['.self::RED('ERR', STDOUT).'] ' . $sourceFile . PHP_EOL);
+            file_put_contents('php://stderr', 'Failed to overwrite file: ' . $targetFile . PHP_EOL . PHP_EOL);
+          }
         }
   
   

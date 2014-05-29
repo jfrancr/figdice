@@ -58,7 +58,9 @@ class TagFigInclude extends TagFig {
 	  // on the topmost View.
 	  $view = new View();
 	  // Compiled target folder is taken from parent view.
-	  $view->setTempPath($renderer->getView()->getTempPath());
+	  if ($renderer->getView()->getTempPath()) {
+  	  $view->setTempPath(dirname($renderer->getView()->getTempPath().'/'.$requestedFilename));
+	  }
 	  $view->loadFile($fqname);
 
 	  return $view->renderSubview($renderer);
