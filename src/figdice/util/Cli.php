@@ -21,7 +21,7 @@ class Cli
   }
   public static function main()
   {
-    $arguments = CommandLine::parseArgs();
+    $arguments = CommandLine::parseArgs(null, array('clean', 'clean-only'));
     
     if (isset($arguments[0])) {
       if ($arguments[0] == 'compile') {
@@ -154,7 +154,9 @@ STRING;
         continue;
       }
       
-      $targetFile = preg_replace(';^'.$sourceFolder.';', $targetFolder, $sourceFile) . '.figdic';
+      $targetFile =  preg_replace(';^'.
+        preg_replace(';/$;', '', $sourceFolder).';',
+        preg_replace(';/$;', '', $targetFolder), $sourceFile). '.figdic';
       
       try {
         

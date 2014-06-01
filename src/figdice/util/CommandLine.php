@@ -9,8 +9,11 @@
  * @see                 https://github.com/pwfisher/CommandLine.php
  * 
  * Modified by Gabriel Zerbib <gabriel@figdice.org> to
- * not accept long option value without the = symbol
- * (i.e "--foo bar" no longer fives ["foo"]=>"bar" but instead:
+ * explicitly specify boolean options, so as their following value 
+ * without the = symbol is considered as another plain arg.
+ * (i.e "--foo bar" with ('bar') in the $boolkeys, no longer gives 
+ * ["foo"]=>"bar" 
+ * but instead:
  * ["foo"]=>true, and a plain arg "bar".  
  */
 
@@ -69,7 +72,7 @@ class CommandLine
      *                      #78651 function getArgs($args) by B Crawford, 22-Oct-2007
      * @usage               $args = CommandLine::parseArgs($_SERVER['argv']);
      */
-    public static function parseArgs($argv = null)
+    public static function parseArgs($argv = null, $boolkeys = null)
     {
       if ( (null == $argv) && (null != self::$args) ) {
         return self::$args;
@@ -93,7 +96,24 @@ class CommandLine
                 if ($eqPos === false)
                 {
                     $key                = substr($arg, 2);
-                    $out[$key]          = true;
+                    
+                    // --foo value
+                    if ($i + 1 < $j && $argv[$i + 1][0] !== '-') {
+                      
+                      // Explicit boolean keys:
+                      if (is_array($boolkeys) && in_array($key, $boolkeys)) {
+                        $out[$key] = true;
+                        $out []= $argv[$i + 1];
+                      }
+                      else {
+                        $out[$key]      = $argv[$i + 1];
+                      }
+                      $i++;
+                    }
+                    else {
+                      $value          = isset($out[$key]) ? $out[$key] : true;
+                      $out[$key]          = $value;
+                    }
                 }
 
                 // --bar=baz
@@ -128,8 +148,15 @@ class CommandLine
                     // -a value1 -abc value2
                     if ($i + 1 < $j && $argv[$i + 1][0] !== '-')
                     {
+                      // Explicit boolean keys:
+                      if (is_array($boolkeys) && in_array($key, $boolkeys)) {
+                        $out[$key] = true;
+                        $out []= $argv[$i + 1];
+                      }
+                      else {
                         $out[$key]      = $argv[$i + 1];
-                        $i++;
+                      }
+                      $i++;
                     }
                 }
             }
@@ -142,6 +169,8 @@ class CommandLine
             }
         }
 
+        
+        
         self::$args                     = $out;
 
         return $out;
