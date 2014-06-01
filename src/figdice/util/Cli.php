@@ -38,6 +38,13 @@ class Cli
           }
         }
       }
+      else if ($arguments[0] == 'check') {
+        if (isset($arguments[1]) && ($arguments[1] == 'dict')) {
+          if (isset($arguments[2])) {
+            exit(self::checkDictionaries($arguments[2]));
+          }
+        }
+      }
     }
     exit(self::usage());
   }
@@ -47,7 +54,7 @@ class Cli
     $usage = <<<STRING
 usage:
 
-figdice.phar compile dict [options] <languageFolder>
+figdice.phar {GREEN}compile dict{RESET} [options] <languageFolder>
 
    --output=<folder>   Output folder for compiled dictionaries.
                        Defaults to <languageFolder>.
@@ -58,7 +65,7 @@ figdice.phar compile dict [options] <languageFolder>
                        do not compile files.
 
 
-figdice.phar compile view [options] <sourceFolder>
+figdice.phar {GREEN}compile view{RESET} [options] <sourceFolder>
 
    --output=<folder>   Output folder for compiled views.
                        Defaults to <sourceFolder>.
@@ -67,9 +74,24 @@ figdice.phar compile view [options] <sourceFolder>
 
    --clean-only        Removes all the .fig files in target folder, but
                        do not compile files.
-                       
+
+
+figdice.phar {GREEN}check dict{RESET} <dictionariesFolder>
+
+      
+      
 
 STRING;
+    
+    if (self::tty(STDERR)) {
+      $usage = str_replace('{GREEN}', "\e[92m", $usage);
+      $usage = str_replace('{RESET}', "\e[0m", $usage);
+    }
+    else {
+      $usage = str_replace('{GREEN}', '', $usage);
+      $usage = str_replace('{RESET}', '', $usage);
+    }
+    
     file_put_contents('php://stderr', $usage);
     return 1;
   }
@@ -83,6 +105,7 @@ STRING;
   
   private static function RED($string, $fd) {    return self::COLORIZE(91, $string, $fd); }
   private static function GREEN($string, $fd) {  return self::COLORIZE(92, $string, $fd); }
+  private static function YELLOW($string, $fd) {  return self::COLORIZE(93, $string, $fd); }
   private static function ON_RED($string, $fd) {  return self::COLORIZE(101, $string, $fd); }
   private static function BLACK_ON_GREEN($string, $fd) {  return self::COLORIZE(42, self::COLORIZE(30, $string, $fd), $fd); }
   
@@ -189,7 +212,7 @@ STRING;
     }
     
     if ($failed) {
-      echo(self::BLACK_ON_GREEN('FAILED', STDOUT) . PHP_EOL);
+      echo(self::ON_RED('FAILED', STDOUT) . PHP_EOL);
       return 1;
     }
     
@@ -321,12 +344,113 @@ STRING;
     }
   
     if ($failed) {
-      echo(self::BLACK_ON_GREEN('FAILED', STDOUT) . PHP_EOL);
+      echo(self::ON_RED('FAILED', STDOUT) . PHP_EOL);
       return 1;
     }
   
     echo(self::BLACK_ON_GREEN('OK', STDOUT) . PHP_EOL);
     return 0;
   }
+
   
+
+  /**
+   * @param string $sourceFolder
+   * @return integer
+   */
+  private static function checkDictionaries($sourceFolder)
+  {
+    // Remove trailing slash
+    $sourceFolder = preg_replace(';/+$;', '', $sourceFolder);
+    
+    //Dectect languages:
+    $languageCodes = glob($sourceFolder . '/*', GLOB_ONLYDIR);
+    
+    if (empty($languageCodes)) {
+      file_put_contents('php://stderr', 'Nothing to do.' . PHP_EOL);
+      return 0;
+    }
+
+
+    $languages = array();
+    foreach ($languageCodes as $languageDir) {
+      $languages []= basename($languageDir);
+    }
+    echo('Working on languages: ' . self::YELLOW(implode(', ', $languages), STDOUT) . PHP_EOL . PHP_EOL);
+    
+    
+    
+    $allFiles = array();
+    $allDics = array();
+    foreach ($languageCodes as $languageDir) {
+      $allFiles[$languageDir] = array();
+      $allDics[$languageDir] = array();
+      
+      $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($languageDir, FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_PATHNAME),
+        RecursiveIteratorIterator::SELF_FIRST | RecursiveIteratorIterator::LEAVES_ONLY
+      );
+      
+      foreach($iterator as $item) {
+        // store every filename (relative to the current language dir)
+        if (substr($item, -strlen('.xml.figdic')) == '.xml.figdic') {
+          $dicfile = substr($item, strlen($languageDir) + 1);
+          $allFiles[$languageDir] []= $dicfile;
+          $dic = unserialize(file_get_contents($item));
+          $allDics[$languageDir][$dicfile] = array_keys($dic);
+        }
+      }
+    }
+
+    
+    // Check that every language contains every file
+    $failed = false;
+    foreach ($allFiles as $languageDir => $files) {
+      foreach ($files as $file) {
+        foreach ($allFiles as $otherLang => $otherFiles) {
+          if ($otherLang == $languageDir)
+            continue;
+          if (! in_array($file, $otherFiles)) {
+            $failed = true;
+            file_put_contents('php://stderr', '  ['.self::RED('ERR', STDERR).'] File ' . $file . ' missing in ' . basename($otherLang) . PHP_EOL);
+            continue;
+          }
+        }
+      }
+    }
+
+    if ($failed) {
+      echo(self::ON_RED('FAILED', STDOUT) . PHP_EOL);
+      return 1;
+    }
+    
+    
+    // Now check that every key in every file
+    // exists in same file of every other lang
+    $missingKeys = array();
+    foreach ($allDics as $languageDir => $dics) {
+      foreach ($dics as $filename => $keys) {
+        foreach ($keys as $key) {
+          foreach ($allDics as $otherLang => $dummy) {
+            if ($otherLang == $languageDir)
+              continue;
+            if (! in_array($key, $allDics[$otherLang][$filename], true)) {
+              $failed = true;
+              $missingKey = $key.'#'.$otherLang.'#'.$filename;
+              // Don't display twice the same error
+              if (! in_array($missingKey, $missingKeys)) {
+                file_put_contents('php://stderr', '  ['.self::RED('ERR', STDERR).'] Key "' . $key . '" missing in ' . self::RED(basename($otherLang), STDERR) .'/' . $filename . PHP_EOL);
+                $missingKeys []= $missingKey;
+                continue;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    echo(self::BLACK_ON_GREEN('OK', STDOUT) . PHP_EOL);
+    return 0;
+    
+  }
 }
